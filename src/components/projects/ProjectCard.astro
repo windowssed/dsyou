@@ -1,0 +1,129 @@
+---
+import AnimatedButton from '@/components/base/AnimatedButton.astro'
+import { Badge } from '@/components/ui/badge'
+import type { CollectionEntry } from 'astro:content'
+
+interface Props {
+  entry: CollectionEntry<'projects'>
+}
+
+const { entry } = Astro.props
+
+// 格式化日期函数
+const formatDate = (date: Date | null | undefined): string => {
+  if (!date) return ''
+  return new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    month: 'short',
+  }).format(date)
+}
+
+const getDateRange = () => {
+  const start = formatDate(entry.data.startDate)
+  if (!start) return ''
+
+  const end = formatDate(entry.data.endDate)
+  if (end) {
+    return `${start} - ${end}`
+  }
+
+  // 如果没有 endDate，显示 Present
+  return `${start} - Present`
+}
+
+const dateRange = getDateRange()
+
+// 按钮布局方式：统一居中显示
+const buttonLayoutClass = 'justify-center gap-2'
+---
+
+<div
+  id={entry.id}
+  class="flex scroll-mt-20 flex-col overflow-hidden rounded-lg border border-border transition-all duration-300 ease-in-out hover:scale-[1.01] hover:bg-muted/50 hover:shadow-lg"
+>
+  <div class="flex gap-4 p-4">
+    <!-- 左侧内容区域 -->
+    <div class="flex flex-1 flex-col gap-3">
+      <h3 class="text-lg font-bold">
+        {entry.data.name}
+      </h3>
+
+      <p class="text-muted-foreground text-sm">
+        {entry.data.description}
+      </p>
+
+      {
+        entry.data.tags && entry.data.tags.length > 0 && (
+          <div class="mt-auto flex flex-wrap gap-1.5">
+            {entry.data.tags.map((tag: string) => (
+              <Badge
+                variant="muted"
+                className="flex bg-muted/30 border border-border"
+              >
+                {tag}
+              </Badge>
+            ))}
+          </div>
+        )
+      }
+    </div>
+
+    <!-- 右侧时间和按钮区域 -->
+    <div class="flex flex-col gap-3">
+      {
+        dateRange && (
+          <p class="text-muted-foreground text-center text-xs font-semibold whitespace-nowrap">
+            {dateRange}
+          </p>
+        )
+      }
+
+      {
+        (entry.data.sourceCodeLink ||
+          entry.data.siteLink ||
+          entry.data.relatedBlogsLink) && (
+          <div class={`flex flex-1 flex-col ${buttonLayoutClass}`}>
+            {entry.data.sourceCodeLink && (
+              <AnimatedButton
+                href={entry.data.sourceCodeLink}
+                external
+                variant="outline"
+                size="sm"
+                class="whitespace-nowrap"
+                icon="lucide:code"
+                iconPosition="left"
+              >
+                Source Code
+              </AnimatedButton>
+            )}
+            {entry.data.relatedBlogsLink && (
+              <AnimatedButton
+                href={entry.data.relatedBlogsLink}
+                variant="outline"
+                size="sm"
+                class="whitespace-nowrap"
+                icon="lucide:book-open"
+                iconPosition="left"
+              >
+                Related Blogs
+              </AnimatedButton>
+            )}
+            {entry.data.siteLink && (
+              <AnimatedButton
+                href={entry.data.siteLink}
+                external
+                variant="outline"
+                size="sm"
+                class="whitespace-nowrap"
+                icon="lucide:arrow-right"
+                iconPosition="right"
+              >
+                Visit Site
+              </AnimatedButton>
+            )}
+          </div>
+        )
+      }
+    </div>
+  </div>
+</div>

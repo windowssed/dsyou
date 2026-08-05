@@ -1,0 +1,479 @@
+---
+import Breadcrumbs from '@/components/base/Breadcrumbs.astro'
+import ArticleImageZoom from '@/components/posts/base/ArticleImageZoom.astro'
+import PostHead from '@/components/posts/base/PostHead.astro'
+import PostCopyright from '@/components/posts/base/PostCopyright.astro'
+import PostNavigation from '@/components/posts/base/PostNavigation.astro'
+import SubpostsHeader from '@/components/posts/base/SubpostsHeader.astro'
+import SubpostsSidebar from '@/components/posts/base/SubpostsSidebar.astro'
+import TOCHeader from '@/components/posts/toc/TOCHeader.astro'
+import TOCSidebar from '@/components/posts/toc/TOCSidebar.astro'
+import { Badge } from '@/components/ui/badge'
+import Layout from '@/layouts/Layout.astro'
+import {
+  getAdjacentPosts,
+  getAllPostsAndSubposts,
+  getCombinedReadingTime,
+  getParentId,
+  getParentPost,
+  getPostReadingTime,
+  getSubpostCount,
+  getTOCSections,
+  hasSubposts,
+  isSubpost,
+} from '@/lib/data-utils'
+import { formatDate } from '@/lib/utils'
+import { Icon } from 'astro-icon/components'
+import { render } from 'astro:content'
+
+export async function getStaticPaths() {
+  const posts = await getAllPostsAndSubposts()
+  return posts.map((post) => ({
+    params: { id: post.id },
+    props: post,
+  }))
+}
+
+const post = Astro.props
+const currentPostId = Astro.params.id
+const { Content, headings } = await render(post)
+
+const isCurrentSubpost = isSubpost(currentPostId)
+const navigation = await getAdjacentPosts(currentPostId)
+const parentPost = isCurrentSubpost ? await getParentPost(currentPostId) : null
+
+const hasChildPosts = await hasSubposts(currentPostId)
+const subpostCount = !isCurrentSubpost
+  ? await getSubpostCount(currentPostId)
+  : 0
+const postReadingTime = await getPostReadingTime(currentPostId)
+const combinedReadingTime =
+  hasChildPosts && !isCurrentSubpost
+    ? await getCombinedReadingTime(currentPostId)
+    : null
+
+const tocSections = await getTOCSections(currentPostId)
+const formattedDate = post.data.date ? formatDate(post.data.date) : ''
+---
+
+<Layout>
+  <PostHead slot="head" post={post} />
+  {
+    (hasChildPosts || isCurrentSubpost) && (
+      <SubpostsHeader
+        slot="subposts-navigation"
+        parentId={isCurrentSubpost ? getParentId(currentPostId) : currentPostId}
+      />
+    )
+  }
+  {
+    headings?.length > 0 &&
+      !(
+        isCurrentSubpost &&
+        headings.length === 1 &&
+        headings[0].text === post.data.title
+      ) && <TOCHeader slot="table-of-contents" headings={headings} />
+  }
+
+  <section
+    class="grid grid-cols-[minmax(0px,1fr)_min(calc(var(--breakpoint-md)-2rem),100%)_minmax(0px,1fr)] gap-y-6"
+  >
+    <div class="col-start-2">
+      <Breadcrumbs
+        items={[
+          { href: '/blog', label: '博客', icon: 'lucide:library-big' },
+          ...(isCurrentSubpost && parentPost
+            ? [
+                {
+                  href: `/blog/${parentPost.id}`,
+                  label: parentPost.data.title ?? '',
+                  icon: 'lucide:book-open',
+                },
+                {
+                  href: `/blog/${currentPostId}`,
+                  label: post.data.title ?? '',
+                  icon: 'lucide:file-text',
+                },
+              ]
+            : [
+                {
+                  href: `/blog/${currentPostId}`,
+                  label: post.data.title ?? '',
+                  icon: 'lucide:book-open-text',
+                },
+              ]),
+        ]}
+      />
+    </div>
+
+    <section class="col-start-2 flex flex-col gap-y-6">
+      <div class="flex flex-col">
+        <h1
+          class="mb-2 scroll-mt-31 text-4xl leading-tight font-black sm:text-5xl"
+          id="post-title"
+        >
+          {post.data.title}
+        </h1>
+
+        <p class="text-muted-foreground/80 mb-4 text-xl">
+          {post.data.description}
+        </p>
+
+        <p class="text-muted-foreground/80 mb-6 text-sm">
+          <span>{formattedDate}</span> &nbsp;•&nbsp; {postReadingTime}
+          {
+            !isCurrentSubpost && combinedReadingTime && (
+              <> ( 共 {combinedReadingTime} )</>
+            )
+          }
+          {
+            !isCurrentSubpost && subpostCount > 0 && (
+              <>
+                {' '}
+                &nbsp;•&nbsp; {subpostCount}{' '}
+                {subpostCount === 1 ? '子文章' : '子文章'}
+              </>
+            )
+          }
+        </p>
+        <div class="flex flex-wrap justify-start gap-2">
+          {
+            post.data.tags &&
+              post.data.tags.length > 0 &&
+              post.data.tags.map((tag: string) => (
+                <a href={`/tags/${tag}`}>
+                  <Badge
+                    variant="muted"
+                    className="flex bg-muted/30 border border-border items-center gap-x-1 hover:bg-muted/70 transition-all duration-100 ease-in-out"
+                  >
+                    <Icon name="lucide:hash" class="size-3" />
+                    {tag}
+                  </Badge>
+                </a>
+              ))
+          }
+        </div>
+      </div>
+
+      <hr class="border-border mb-8" />
+
+      <!-- Hidden the post navigation buttons as they are available in the bottom of the page -->
+      <!-- <PostNavigation
+        newerPost={navigation.newer}
+        olderPost={navigation.older}
+        parentPost={isCurrentSubpost ? navigation.parent : undefined}
+      /> -->
+    </section>
+
+    <section
+      class="col-span-3 grid grid-cols-[minmax(0px,1fr)_min(calc(var(--breakpoint-md)-2rem),100%)_minmax(0px,1fr)] items-start"
+    >
+      {
+        tocSections.length > 0 && (
+          <TOCSidebar sections={tocSections} currentPostId={currentPostId} />
+        )
+      }
+
+      <article class="prose custom-md col-start-2 max-w-none">
+        <Content />
+      </article>
+      <ArticleImageZoom />
+
+      {
+        (hasChildPosts || isCurrentSubpost) && (
+          <SubpostsSidebar
+            parentId={
+              isCurrentSubpost ? getParentId(currentPostId) : currentPostId
+            }
+            className="w-64"
+          />
+        )
+      }
+    </section>
+
+    <PostCopyright post={post} />
+
+    <PostNavigation
+      newerPost={navigation.newer}
+      olderPost={navigation.older}
+      parentPost={isCurrentSubpost ? navigation.parent : undefined}
+    />
+  </section>
+
+  <div
+    id="reading-progress"
+    class="fixed right-8 bottom-8 z-50 hidden size-14 cursor-pointer select-none"
+    role="button"
+    tabindex="0"
+    title="阅读进度 0%"
+    aria-label="回到顶部（阅读进度 0%）"
+  >
+    <svg class="progress-ring" viewBox="0 0 56 56" aria-hidden="true">
+      <circle class="progress-ring-bg" cx="28" cy="28" r="24"></circle>
+      <circle class="progress-ring-circle" cx="28" cy="28" r="24"></circle>
+    </svg>
+    <div class="progress-center" aria-hidden="true">
+      <span class="progress-text">0%</span>
+      <span class="progress-arrow">
+        <svg
+          class="progress-arrow-icon"
+          viewBox="0 0 24 24"
+          width="20"
+          height="20"
+          fill="none"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <path
+            d="M6 14l6-6 6 6"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"></path>
+        </svg>
+      </span>
+    </div>
+  </div>
+
+  <style>
+    #reading-progress {
+      -webkit-tap-highlight-color: transparent;
+      filter: drop-shadow(
+        0 2px 10px color-mix(in oklch, var(--foreground) 10%, transparent)
+      );
+      transition:
+        transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+        opacity 0.2s ease;
+    }
+
+    #reading-progress:hover {
+      transform: scale(1.06);
+    }
+
+    #reading-progress:active {
+      transform: scale(0.96);
+    }
+
+    #reading-progress:focus-visible {
+      outline: 2px solid var(--ring);
+      outline-offset: 2px;
+      border-radius: 9999px;
+    }
+
+    .progress-ring {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+    }
+
+    .progress-ring-bg {
+      fill: var(--background);
+      stroke: var(--border);
+      stroke-width: 3;
+    }
+
+    .progress-ring-circle {
+      fill: none;
+      /* 使用全局强调色，和站点“主题色”保持一致（会跟随浅色 / 深色） */
+      stroke: var(--accent);
+      stroke-width: 3;
+      stroke-linecap: round;
+      stroke-dasharray: 150.796; /* 2πr, r=24 */
+      stroke-dashoffset: 150.796;
+      transition: stroke-dashoffset 0.25s ease;
+    }
+
+    .progress-center {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .progress-text,
+    .progress-arrow {
+      grid-area: 1 / 1;
+      transition:
+        opacity 0.15s ease,
+        transform 0.15s ease;
+    }
+
+    /* 默认显示百分比 */
+    #reading-progress[data-show='percent'] .progress-text {
+      opacity: 1;
+      transform: scale(1);
+      color: color-mix(in oklch, var(--foreground) 85%, transparent);
+      font-size: 12px;
+      font-weight: 700;
+    }
+    #reading-progress[data-show='percent'] .progress-arrow {
+      opacity: 0;
+      transform: translateY(6px) scale(0.9);
+    }
+
+    /* 停止滚动后显示箭头 */
+    #reading-progress[data-show='arrow'] .progress-text {
+      opacity: 0;
+      transform: translateY(-6px) scale(0.9);
+    }
+    #reading-progress[data-show='arrow'] .progress-arrow {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      color: var(--accent);
+      display: grid;
+      place-items: center;
+    }
+
+    .progress-arrow-icon {
+      display: block;
+    }
+
+    /* 只让图标本体弹跳，避免覆盖容器的 transform（容器负责过渡/缩放/位移） */
+    #reading-progress[data-show='arrow'] .progress-arrow-icon {
+      animation: progress-bounce 1s ease-in-out infinite;
+    }
+
+    @keyframes progress-bounce {
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-4px);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      #reading-progress,
+      .progress-ring-circle,
+      .progress-text,
+      .progress-arrow,
+      .progress-arrow-icon {
+        transition: none !important;
+        animation: none !important;
+      }
+    }
+
+    @media (max-width: 768px) {
+      #reading-progress {
+        right: 20px;
+        bottom: 20px;
+        width: 48px;
+        height: 48px;
+      }
+    }
+  </style>
+
+  <script>
+    import { getArticleReadingProgress } from '@/lib/reading-progress'
+
+    let cleanupReadingProgress: (() => void) | null = null
+
+    const initReadingProgress = () => {
+      cleanupReadingProgress?.()
+      cleanupReadingProgress = null
+
+      const root = document.getElementById('reading-progress')
+      const circle = root?.querySelector(
+        '.progress-ring-circle',
+      ) as SVGCircleElement | null
+      const text = root?.querySelector('.progress-text') as HTMLElement | null
+
+      const article =
+        document.querySelector<HTMLElement>('article.prose') ||
+        document.querySelector<HTMLElement>('article')
+
+      const r = 24
+      const circumference = 2 * Math.PI * r
+      let scrollTimer: number | null = null
+
+      if (!root || !circle || !text || !article) return
+
+      const setVisible = (visible: boolean) => {
+        root.classList.toggle('hidden', !visible)
+      }
+
+      const setShowMode = (mode: 'percent' | 'arrow') => {
+        root.setAttribute('data-show', mode)
+      }
+
+      const update = () => {
+        const { progress, percentage, inRange } =
+          getArticleReadingProgress(article)
+        setVisible(inRange)
+
+        // 更新文本/标题/aria
+        text.textContent = `${percentage}%`
+        root.title = `阅读进度 ${percentage}%`
+        root.setAttribute('aria-label', `回到顶部（阅读进度 ${percentage}%）`)
+
+        // 更新圆环
+        circle.style.strokeDasharray = `${circumference}`
+        circle.style.strokeDashoffset = `${
+          circumference - progress * circumference
+        }`
+
+        // 滚动时显示百分比，停止 1.5s 后显示箭头
+        setShowMode('percent')
+        if (scrollTimer) window.clearTimeout(scrollTimer)
+        scrollTimer = window.setTimeout(() => {
+          // 仍在范围内才切箭头
+          if (!root.classList.contains('hidden')) setShowMode('arrow')
+        }, 1500)
+      }
+
+      const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' })
+
+      const handleKeydown = (e: KeyboardEvent) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          scrollToTop()
+        }
+      }
+
+      root.addEventListener('click', scrollToTop)
+      root.addEventListener('keydown', handleKeydown)
+      window.addEventListener('scroll', update, { passive: true })
+      window.addEventListener('resize', update, { passive: true })
+      window.addEventListener('load', update, { once: true })
+      update()
+      requestAnimationFrame(update)
+
+      cleanupReadingProgress = () => {
+        root.removeEventListener('click', scrollToTop)
+        root.removeEventListener('keydown', handleKeydown)
+        window.removeEventListener('scroll', update)
+        window.removeEventListener('resize', update)
+        window.removeEventListener('load', update)
+        if (scrollTimer) window.clearTimeout(scrollTimer)
+        root.classList.add('hidden')
+      }
+    }
+
+    const cleanupBeforeSwap = () => {
+      cleanupReadingProgress?.()
+      cleanupReadingProgress = null
+    }
+
+    document.addEventListener('astro:page-load', initReadingProgress)
+    document.addEventListener('astro:after-swap', initReadingProgress)
+    document.addEventListener('astro:before-swap', cleanupBeforeSwap)
+    initReadingProgress()
+  </script>
+</Layout>
+
+<script>
+  if (document.querySelector('.katex')) {
+    if (!document.querySelector('link[href*="katex.min.css"]')) {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href =
+        'https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css'
+      document.head.appendChild(link)
+    }
+  }
+</script>

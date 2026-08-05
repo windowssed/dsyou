@@ -1,0 +1,59 @@
+---
+import Breadcrumbs from '@/components/base/Breadcrumbs.astro'
+import Link from '@/components/base/Link.astro'
+import PageHead from '@/components/posts/base/PageHead.astro'
+import ProjectCard from '@/components/projects/ProjectCard.astro'
+import { buttonVariants } from '@/components/ui/button'
+import Layout from '@/layouts/Layout.astro'
+import { cn } from '@/lib/utils'
+import type { CollectionEntry } from 'astro:content'
+
+export async function getStaticPaths() {
+  const { getCollection } = await import('astro:content')
+  const projects = await getCollection('projects')
+  return projects.map((project: CollectionEntry<'projects'>) => ({
+    params: { id: project.id },
+    props: project,
+  }))
+}
+
+const project = Astro.props as CollectionEntry<'projects'>
+const currentProjectId = (Astro.params as { id: string }).id
+
+if (!project) {
+  return Astro.redirect('/projects')
+}
+---
+
+<Layout class="max-w-3xl">
+  <PageHead
+    slot="head"
+    title={project.data.name ?? ''}
+    description={project.data.description ?? undefined}
+  />
+  <Breadcrumbs
+    items={[
+      { label: '项目', href: '/projects', icon: 'lucide:briefcase' },
+      {
+        label: project.data.name ?? '',
+        href: `/projects/${currentProjectId}`,
+        icon: 'lucide:code',
+      },
+    ]}
+  />
+
+  <div class="flex flex-col gap-y-8">
+    <ProjectCard entry={project} />
+    <Link
+      href="/projects"
+      class={cn(
+        buttonVariants({ variant: 'outline' }),
+        'inline-flex gap-x-1.5 group w-fit mx-auto',
+      )}
+    >
+      <span class="transition-transform group-hover:-translate-x-1">&larr;</span
+      >
+      返回项目列表
+    </Link>
+  </div>
+</Layout>

@@ -1,0 +1,92 @@
+---
+import { Button } from '@/components/ui/button'
+import { Icon } from 'astro-icon/components'
+---
+
+<Button
+  id="theme-toggle"
+  variant="ghost"
+  size="icon"
+  title="Toggle theme"
+  className="group text-foreground/65 hover:text-foreground hover:bg-muted/60 dark:hover:bg-muted/60 size-8 rounded-md transition-[background-color,color,border-radius,transform] duration-300 ease-out group-[.not-top]/site:rounded-xl hover:scale-105 hover:cursor-pointer active:scale-95"
+>
+  <Icon
+    name="lucide:sun"
+    class="theme-icon theme-light size-4 transition-transform duration-300 ease-out group-hover:rotate-12"
+  />
+  <Icon
+    name="lucide:moon"
+    class="theme-icon theme-dark size-4 transition-transform duration-300 ease-out group-hover:-rotate-12"
+  />
+  <Icon
+    name="lucide:monitor"
+    class="theme-icon theme-auto size-4 transition-transform duration-300 ease-out group-hover:scale-110"
+  />
+  <span class="sr-only">Toggle theme</span>
+</Button>
+
+<script is:inline data-astro-rerun>
+  ;(() => {
+    const initialMode = localStorage?.getItem('theme-mode') ?? 'auto'
+    const prefersDark = matchMedia('(prefers-color-scheme: dark)').matches
+    const initialTheme =
+      initialMode === 'auto' ? (prefersDark ? 'dark' : 'light') : initialMode
+    document.documentElement.setAttribute('data-theme', initialTheme)
+    document.documentElement.setAttribute('data-theme-mode', initialMode)
+  })()
+</script>
+
+<script>
+  const MODES = ['light', 'dark', 'auto'] as const
+  let mediaQuery: MediaQueryList | null = null
+  let listener: ((e: MediaQueryListEvent) => void) | null = null
+
+  const getTheme = () =>
+    matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+  const $root = document.documentElement
+
+  function setTheme(mode: string, animate = true) {
+    const theme = mode === 'auto' ? getTheme() : mode
+
+    if (animate) {
+      $root.classList.add('[&_*]:transition-none')
+      getComputedStyle($root).opacity // force reflow
+    }
+
+    $root.setAttribute('data-theme', theme)
+    $root.setAttribute('data-theme-mode', mode)
+    localStorage.setItem('theme-mode', mode)
+
+    if (animate)
+      requestAnimationFrame(() =>
+        $root.classList.remove('[&_*]:transition-none'),
+      )
+
+    document
+      .querySelectorAll('.theme-icon')
+      .forEach((el) => el.classList.add('hidden'))
+    document.querySelector(`.theme-${mode}`)?.classList.remove('hidden')
+
+    listener && mediaQuery?.removeEventListener('change', listener)
+    if (mode === 'auto') {
+      mediaQuery = matchMedia('(prefers-color-scheme: dark)')
+      listener = () =>
+        localStorage.getItem('theme-mode') === 'auto' && setTheme('auto', true)
+      mediaQuery.addEventListener('change', listener)
+    }
+  }
+
+  function toggle() {
+    const mode = $root.getAttribute('data-theme-mode') || 'auto'
+    const next = MODES[(MODES.indexOf(mode as any) + 1) % MODES.length]
+    setTheme(next)
+  }
+
+  setTheme($root.getAttribute('data-theme-mode') || 'auto', false)
+  document.getElementById('theme-toggle')?.addEventListener('click', toggle)
+
+  document.addEventListener('astro:after-swap', () => {
+    setTheme(localStorage.getItem('theme-mode') || 'auto', false)
+    document.getElementById('theme-toggle')?.addEventListener('click', toggle)
+  })
+</script>

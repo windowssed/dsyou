@@ -1,0 +1,64 @@
+---
+import { SITE } from '@/config'
+import { ClientRouter } from 'astro:transitions'
+import Favicons from './Favicons.astro'
+
+const consoleBadge = 'Astro Theme Shyne'
+const consoleUrl = 'https://github.com/FuTseYi/Astro-Theme-Shyne'
+const consoleBadgeStyle =
+  'color:#fff;background:linear-gradient(90deg,#111827,#2563eb);padding:5px 0 5px 8px;border-radius:4px 0 0 4px;font-weight:600;'
+const consoleUrlStyle =
+  'color:#111827;background:linear-gradient(90deg,#93c5fd,#f8fafc);padding:5px 8px 5px 0;border-radius:0 4px 4px 0;'
+const consoleSignatureScript = `console.log(${JSON.stringify(
+  `%c ${consoleBadge} %c ${consoleUrl} `,
+)},${JSON.stringify(consoleBadgeStyle)},${JSON.stringify(consoleUrlStyle)})`
+---
+
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, user-scalable=yes"
+  />
+  <meta name="generator" content={Astro.generator} />
+
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta
+    name="format-detection"
+    content="telephone=no,date=no,address=no,email=no,url=no"
+  />
+
+  <meta
+    name="theme-color"
+    content="#121212"
+    media="(prefers-color-scheme: dark)"
+  />
+  <meta
+    name="theme-color"
+    content="#121212"
+    media="(prefers-color-scheme: light)"
+  />
+
+  <link rel="sitemap" href="/sitemap-index.xml" />
+  <link
+    rel="alternate"
+    type="application/rss+xml"
+    title={SITE.title}
+    href={new URL('rss.xml', Astro.url.origin)}
+  />
+
+  <Favicons />
+  <ClientRouter />
+
+  {
+    import.meta.env.PROD && (
+      <script is:inline set:html={consoleSignatureScript} />
+    )
+  }
+
+  <slot />
+</head>

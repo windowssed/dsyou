@@ -1,0 +1,138 @@
+{
+  "name": "dsyou",
+  "version": "1.0.0",
+  "description": "windowssed 的个人博客网站。",
+  "type": "module",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/FuTseYi/Astro-Theme-Shyne.git"
+  },
+  "bugs": {
+    "url": "https://github.com/FuTseYi/Astro-Theme-Shyne/issues"
+  },
+  "homepage": "https://github.com/FuTseYi/Astro-Theme-Shyne#readme",
+  "keywords": [
+    "astro",
+    "astro-theme",
+    "blog",
+    "portfolio",
+    "tailwind",
+    "react",
+    "shadcn",
+    "polaroid",
+    "photo-gallery",
+    "minimalist",
+    "ssg",
+    "static-site-generator",
+    "personal-website"
+  ],
+  "author": {
+    "name": "FuTseYi",
+    "url": "https://github.com/FuTseYi"
+  },
+  "license": "MIT",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "sharp",
+      "esbuild"
+    ]
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "prebuild": "node sync-content.mjs",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "prettier": "prettier --write **/*.{ts,tsx,css,astro} --ignore-path .gitignore",
+    "import:obsidian": "node scripts/import-obsidian.mjs",
+    "import-and-commit:obsidian": "node scripts/import-and-commit.mjs",
+    "publish:devto": "node scripts/publish-devto.mjs",
+    "publish:medium": "node scripts/publish-medium.mjs"
+  },
+  "dependencies": {
+    "@astrojs/check": "^0.9.9",
+    "@astrojs/markdown-remark": "^7.2.0",
+    "@astrojs/react": "^5.0.7",
+    "@astrojs/rss": "^4.0.18",
+    "@astrojs/sitemap": "^3.7.3",
+    "@expressive-code/plugin-collapsible-sections": "^0.41.7",
+    "@expressive-code/plugin-line-numbers": "^0.41.7",
+    "@iconify-json/lucide": "^1.2.106",
+    "@iconify-json/simple-icons": "^1.2.81",
+    "@iconify/react": "^6.0.2",
+    "@shikijs/rehype": "^1.29.2",
+    "@tailwindcss/vite": "4.3.0",
+    "@types/react": "19.2.7",
+    "@types/react-dom": "19.2.3",
+    "@vercel/speed-insights": "^2.0.0",
+    "astro": "^6.4.4",
+    "astro-icon": "^1.1.5",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "dotenv": "^17.4.2",
+    "gray-matter": "^4.0.3",
+    "hastscript": "^9.0.1",
+    "lucide-react": "^0.562.0",
+    "markdown-it": "^14.1.1",
+    "mdast-util-to-string": "^4.0.0",
+    "motion": "^11.18.2",
+    "radix-ui": "^1.4.3",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "reading-time": "^1.5.0",
+    "rehype-components": "^0.3.0",
+    "rehype-expressive-code": "^0.41.7",
+    "rehype-external-links": "^3.0.0",
+    "rehype-katex": "^7.0.1",
+    "remark-directive": "^4.0.0",
+    "remark-emoji": "^5.0.2",
+    "remark-github-admonitions-to-directives": "^2.1.0",
+    "remark-math": "^6.0.0",
+    "sanitize-html": "^2.17.3",
+    "sharp": "^0.34.5",
+    "tailwind-merge": "^3.6.0",
+    "tailwindcss": "4.3.0",
+    "typescript": "^5.9.3",
+    "unist-util-visit": "^5.1.0"
+  },
+  "devDependencies": {
+    "@types/markdown-it": "^14.1.2",
+    "@types/sanitize-html": "^2.16.1",
+    "prettier": "^3.8.3",
+    "prettier-plugin-astro": "^0.14.1",
+    "prettier-plugin-astro-organize-imports": "^0.4.12",
+    "prettier-plugin-tailwindcss": "^0.7.4"
+  },
+  "overrides": {
+    "vite": "7.3.3"
+  },
+  "prettier": {
+    "semi": false,
+    "singleQuote": true,
+    "plugins": [
+      "prettier-plugin-astro",
+      "prettier-plugin-tailwindcss",
+      "prettier-plugin-astro-organize-imports"
+    ],
+    "overrides": [
+      {
+        "files": "*.astro",
+        "options": {
+          "parser": "astro"
+        }
+      },
+      {
+        "files": "*.jsonc",
+        "options": {
+          "trailingComma": "none"
+        }
+      }
+    ]
+  },
+  "allowScripts": {
+    "esbuild@0.27.7": true,
+    "sharp@0.34.5": true
+  }
+}

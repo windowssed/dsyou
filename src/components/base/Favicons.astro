@@ -1,0 +1,17 @@
+---
+import { FAVICON, SITE } from '@/config'
+---
+
+<!-- Modern browsers: PNG for compatibility -->
+<link rel="icon" type="image/png" href={FAVICON.png96} sizes="96x96" />
+
+<!-- Modern browsers: SVG (perfect scaling) -->
+<link rel="icon" type="image/svg+xml" href={FAVICON.svg} />
+
+<!-- Legacy browsers: ICO fallback -->
+<link rel="shortcut icon" href={FAVICON.ico} />
+
+<!-- iOS/Safari: PNG required (SVG not supported) -->
+<link rel="apple-touch-icon" sizes="180x180" href={FAVICON.appleTouchIcon} />
+
+<meta name="apple-mobile-web-app-title" content={SITE.title} />

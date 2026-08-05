@@ -1,0 +1,189 @@
+---
+import AnimatedButton from '@/components/base/AnimatedButton.astro'
+import ExperienceTimeline from '@/components/base/ExperienceTimeline.astro'
+import Link from '@/components/base/Link.astro'
+import SocialIcons from '@/components/base/SocialIcons.astro'
+import PageHead from '@/components/posts/base/PageHead.astro'
+import BlogCard from '@/components/posts/card/BlogCard.astro'
+import ProjectCard from '@/components/projects/ProjectCard.astro'
+import { buttonVariants } from '@/components/ui/button'
+import { SITE, SOCIAL_LINKS } from '@/config'
+import Layout from '@/layouts/Layout.astro'
+import {
+  getFeaturedProjects,
+  getRecentExperiences,
+  getRecentPosts,
+} from '@/lib/data-utils'
+
+const blog = await getRecentPosts(SITE.featuredPostCount)
+const projects = await getFeaturedProjects(SITE.featuredProjectCount)
+const experiences = await getRecentExperiences(SITE.featuredExperienceCount)
+---
+
+<Layout class="max-w-3xl">
+  <PageHead slot="head" title="首页" />
+  <!-- Hero Section -->
+  <section class="bg-grid-pattern">
+    <div class="px-6 pt-6">
+      <div
+        id="profile-image-container"
+        class="group relative mx-auto mb-6 w-48 rotate-2 bg-white p-2 pb-10 shadow-lg transition-all duration-300 hover:scale-105 hover:rotate-3 hover:shadow-xl md:float-right md:mb-4 md:ml-8"
+      >
+        <img
+          src="/avatar.svg"
+          alt="windowssed"
+          class="relative block h-auto w-full border border-gray-200"
+        />
+        <p
+          class="font-caveat absolute bottom-2 left-1/2 -translate-x-1/2 text-base whitespace-nowrap text-gray-800"
+        >
+          你好呀 :)
+        </p>
+      </div>
+      <div class="flex flex-col items-center space-y-1.5 md:items-start">
+        <h1
+          class="text-accent font-caveat text-center text-8xl leading-none font-extrabold md:text-left md:text-9xl"
+        >
+          windowssed
+        </h1>
+        <p
+          class="text-muted-foreground text-l mt-2 text-center font-serif md:text-left"
+        >
+          记录生活、学习与思考的个人博客
+        </p>
+      </div>
+      <p
+        class="text-l text-muted-foreground mt-4 text-center font-serif md:text-left"
+      >
+        你好，我是 <strong>windowssed</strong>。这里是我的个人空间，
+        我会分享技术学习笔记、生活随笔，以及一切我感兴趣的东西。
+      </p>
+      <p
+        class="text-muted-foreground text-l mt-4 text-center font-serif md:text-left"
+      >
+        这个网站由 Astro 构建，托管在 Vercel 上，内容与代码分离管理。
+        想了解我更多，可以逛逛我的博客和项目。
+      </p>
+      <div class="mt-8 flex flex-col items-center gap-8 md:items-start">
+        <div class="flex flex-wrap items-center justify-center gap-3">
+          <AnimatedButton
+            href="/about"
+            icon="lucide:arrow-right"
+            iconPosition="right"
+            variant="outline"
+          >
+            关于我
+          </AnimatedButton>
+          <AnimatedButton
+            href={SOCIAL_LINKS[0]?.href ?? '/blog'}
+            icon="lucide:arrow-right"
+            iconPosition="right"
+            variant="default"
+          >
+            GitHub
+          </AnimatedButton>
+        </div>
+        <SocialIcons links={SOCIAL_LINKS} />
+      </div>
+    </div>
+  </section>
+
+  {
+    experiences.length > 0 && (
+      <!-- Experience Section -->
+      <section>
+        <h2 class="mt-12 text-5xl font-bold">
+          经历<span class="text-accent">.</span>
+        </h2>
+        <p class="text-muted-foreground mb-6 text-2xl">
+          学习与<span
+            class="text-foreground decoration-accent font-serif italic underline"
+            >工作</span
+          >的经历。
+        </p>
+        <ExperienceTimeline experiences={experiences} />
+        <div class="mt-4 flex justify-center">
+          <Link
+            href="/experience"
+            class={buttonVariants({ variant: 'ghost' }) + ' group'}
+          >
+            查看全部经历
+            <span class="ml-1.5 transition-transform group-hover:translate-x-1"
+              >&rarr;</span
+            >
+          </Link>
+        </div>
+      </section>
+    )
+  }
+
+  {
+    projects.length > 0 && (
+      <!-- Works Section-->
+      <section class="mt-12 flex flex-col">
+        <h2 class="text-5xl font-bold">
+          项目<span class="text-accent">.</span>
+        </h2>
+        <p class="text-muted-foreground mb-4 text-2xl">
+          最近<span
+            class="text-foreground decoration-accent font-serif italic underline"
+            >做</span
+          >的东西。
+        </p>
+        <ul class="flex flex-col gap-y-4">
+          {
+            projects.map((project) => (
+              <li>
+                <ProjectCard entry={project} />
+              </li>
+            ))
+          }
+        </ul>
+        <div class="mt-4 flex justify-center">
+          <Link
+            href="/projects"
+            class={buttonVariants({ variant: 'ghost' }) + ' group'}
+          >
+            查看全部项目 <span
+              class="ml-1.5 transition-transform group-hover:translate-x-1"
+              >&rarr;</span
+            >
+          </Link>
+        </div>
+      </section>
+    )
+  }
+
+  <!-- Latest Posts Section -->
+  <section class="mt-12 flex flex-col">
+    <h2 class="text-5xl font-bold">
+      文章<span class="text-accent">.</span>
+    </h2>
+    <p class="text-muted-foreground mb-6 text-2xl">
+      最近<span
+        class="text-foreground decoration-accent font-serif italic underline"
+        >写</span
+      >的文章。
+    </p>
+    <ul class="flex flex-col gap-y-4">
+      {
+        blog.map((post) => (
+          <li>
+            <BlogCard entry={post} />
+          </li>
+        ))
+      }
+    </ul>
+    <div class="mt-4 flex justify-center">
+      <Link
+        href="/blog"
+        class={buttonVariants({ variant: 'ghost' }) + ' group'}
+      >
+        查看全部文章 <span
+          class="ml-1.5 transition-transform group-hover:translate-x-1"
+          >&rarr;</span
+        >
+      </Link>
+    </div>
+  </section>
+</Layout>

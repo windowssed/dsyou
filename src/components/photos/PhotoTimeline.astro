@@ -1,0 +1,111 @@
+---
+import type { PhotoData } from '@/lib/photos'
+import { cn } from '@/lib/utils'
+import PolaroidStack from './PolaroidStack'
+import TimelineIcon from './TimelineIcon.astro'
+
+interface Props {
+  photoData: PhotoData[]
+  class?: string
+}
+
+const { photoData, class: className } = Astro.props
+
+const formatDate = (date: string | undefined): string => {
+  if (!date) return ''
+  const parsed = new Date(date)
+  if (Number.isNaN(parsed.getTime())) return ''
+  return new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: '2-digit',
+  }).format(parsed)
+}
+
+const getDateRange = (start?: string, end?: string): string => {
+  const startText = formatDate(start)
+  const endText = formatDate(end)
+
+  if (!startText && !endText) return ''
+
+  if (startText && endText && endText !== startText) {
+    return `${startText} - ${endText}`
+  }
+
+  return startText || endText
+}
+---
+
+<div class={cn(className)}>
+  {
+    photoData.map((timeline, index) => {
+      const dateRange = getDateRange(timeline.date, timeline.endDate)
+      const location = timeline.location?.trim()
+
+      return (
+        <div class="timeline-item group/item relative [contain-intrinsic-size:220px] [content-visibility:auto]">
+          <div class="flex gap-x-3">
+            <div class="relative after:absolute after:start-3.5 after:top-7 after:bottom-0 after:w-px after:-translate-x-[0.5px] after:bg-zinc-200/50 last:after:hidden dark:after:bg-zinc-700/50">
+              <div class="relative z-10 flex size-7 items-center justify-center">
+                <TimelineIcon icon={timeline.icon} index={index} />
+              </div>
+            </div>
+            <div class="relative grow pt-0.5 pb-8">
+              <h2 class="text-foreground mt-0.5 font-sans text-base leading-tight font-semibold sm:mt-0">
+                {timeline.title}
+              </h2>
+
+              {(dateRange || location) && (
+                <div class="text-muted-foreground mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs">
+                  {dateRange && <span class="tabular-nums">{dateRange}</span>}
+                  {dateRange && location && (
+                    <span class="text-border" aria-hidden="true">
+                      &middot;
+                    </span>
+                  )}
+                  {location && (
+                    <span class="inline-flex items-center gap-1">
+                      <svg
+                        class="size-3.5 shrink-0"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                      >
+                        <path
+                          fill="currentColor"
+                          d="M12 2.75c-3.04 0-5.5 2.42-5.5 5.4 0 3.77 3.4 7.47 5.03 9.15.26.27.68.27.94 0 1.63-1.68 5.03-5.38 5.03-9.15 0-2.98-2.46-5.4-5.5-5.4Zm0 7.55a2.15 2.15 0 1 1 0-4.3 2.15 2.15 0 0 1 0 4.3Z"
+                        />
+                      </svg>
+                      <span>{location}</span>
+                    </span>
+                  )}
+                </div>
+              )}
+
+              {timeline.description && (
+                <p class="photo-timeline-description border-border/70 text-foreground/75 group-hover/item:border-accent group-hover/item:text-foreground mt-3 border-l-2 pl-3 text-sm leading-relaxed transition-colors">
+                  {timeline.description}
+                </p>
+              )}
+
+              <div class="mt-5">
+                <PolaroidStack
+                  photos={timeline.photos}
+                  title={timeline.title}
+                  description={timeline.description}
+                  client:visible
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    })
+  }
+</div>
+
+<style>
+  .timeline-item[data-gallery-open='true'] .photo-timeline-description {
+    border-color: var(--accent);
+    color: var(--foreground);
+  }
+</style>

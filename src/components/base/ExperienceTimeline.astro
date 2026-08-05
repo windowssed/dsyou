@@ -1,0 +1,234 @@
+---
+import { Image } from 'astro:assets'
+import type { CollectionEntry } from 'astro:content'
+
+import { Badge } from '@/components/ui/badge'
+import { compareExperiences } from '@/lib/data-utils'
+import { cn } from '@/lib/utils'
+import Link from './Link.astro'
+
+interface Props {
+  experiences: CollectionEntry<'experience'>[]
+}
+
+const { experiences } = Astro.props
+
+const formatDate = (date: Date | null | undefined): string => {
+  if (!date) return ''
+  return new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    month: 'short',
+  }).format(date)
+}
+
+const getDateRange = (exp: CollectionEntry<'experience'>) => {
+  const start = formatDate(exp.data.startDate)
+  if (!start) return ''
+
+  const end = formatDate(exp.data.endDate)
+  if (end) {
+    return `${start} - ${end}`
+  }
+
+  return `${start} - Present`
+}
+
+const isCurrentExperience = (exp: CollectionEntry<'experience'>) => {
+  return !exp.data.endDate
+}
+
+const getCompanyUrl = (exp: CollectionEntry<'experience'>): string | null => {
+  const url = exp.data.companyUrl
+  if (typeof url !== 'string') return null
+  const trimmed = url.trim()
+  return trimmed.length > 0 ? trimmed : null
+}
+
+const getInitials = (company: string | null | undefined): string => {
+  const text = (company ?? '').trim()
+  if (!text) return '?'
+  const parts = text.split(/\s+/).filter(Boolean)
+  const first = parts[0]?.[0] ?? ''
+  const second = parts.length > 1 ? (parts[1]?.[0] ?? '') : ''
+  return (first + second).toUpperCase() || '?'
+}
+
+const sortedExperiences = [...experiences].sort(compareExperiences)
+---
+
+<div class="space-y-8">
+  {
+    sortedExperiences.map((exp, index) => {
+      const companyUrl = getCompanyUrl(exp)
+      const initials = getInitials(exp.data.company)
+      const dateRange = getDateRange(exp)
+      const location = exp.data.location?.trim()
+
+      return (
+        <div class="group/item relative">
+          {index < sortedExperiences.length - 1 && (
+            <div
+              class="bg-border absolute top-14 bottom-[-2rem] left-[19px] w-px"
+              aria-hidden="true"
+            />
+          )}
+
+          <div class="flex gap-5">
+            {companyUrl ? (
+              <Link href={companyUrl} external class="relative block shrink-0">
+                <div
+                  class={cn(
+                    'border-border bg-background z-10 flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border',
+                    isCurrentExperience(exp) &&
+                      'shadow-primary/20 shadow-lg dark:shadow-none',
+                  )}
+                >
+                  {exp.data.companyLogo ? (
+                    <Image
+                      src={exp.data.companyLogo}
+                      alt={
+                        exp.data.company
+                          ? `${exp.data.company} logo`
+                          : 'Company logo'
+                      }
+                      width={40}
+                      height={40}
+                      class="h-full w-full bg-white object-contain p-0.5 transition-opacity hover:opacity-80"
+                    />
+                  ) : (
+                    <span class="text-muted-foreground text-xs font-semibold">
+                      {initials}
+                    </span>
+                  )}
+                </div>
+              </Link>
+            ) : (
+              <div
+                class={cn(
+                  'border-border bg-background z-10 flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border',
+                  isCurrentExperience(exp) &&
+                    'shadow-primary/20 shadow-lg dark:shadow-none',
+                )}
+              >
+                {exp.data.companyLogo ? (
+                  <Image
+                    src={exp.data.companyLogo}
+                    alt={
+                      exp.data.company
+                        ? `${exp.data.company} logo`
+                        : 'Company logo'
+                    }
+                    width={40}
+                    height={40}
+                    class="h-full w-full bg-white object-contain p-0.5"
+                  />
+                ) : (
+                  <span class="text-muted-foreground text-xs font-semibold">
+                    {initials}
+                  </span>
+                )}
+              </div>
+            )}
+
+            <div class="min-w-0 flex-1 pt-0.5">
+              <div class="space-y-1">
+                <div class="flex items-start justify-between gap-4">
+                  {exp.data.role && (
+                    <h3 class="text-foreground min-w-0 flex-1 text-lg leading-tight font-semibold">
+                      {exp.data.role}
+                    </h3>
+                  )}
+
+                  {isCurrentExperience(exp) && (
+                    <span class="mt-0.5 inline-flex shrink-0 items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                      <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400" />
+                      Active
+                    </span>
+                  )}
+                </div>
+
+                {exp.data.company &&
+                  (companyUrl ? (
+                    <Link
+                      href={companyUrl}
+                      external
+                      class="text-foreground/85 hover:text-accent focus-visible:text-accent group-hover/item:text-accent inline-flex w-fit items-center gap-1.5 text-sm leading-snug font-semibold transition-colors"
+                    >
+                      <svg
+                        class="text-muted-foreground group-hover/item:text-accent size-3.5 shrink-0 transition-colors"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                      >
+                        <path
+                          fill="currentColor"
+                          d="M4.75 20.25h14.5a.75.75 0 0 0 0-1.5h-.5V5.8c0-1.13-.92-2.05-2.05-2.05H7.3c-1.13 0-2.05.92-2.05 2.05v12.95h-.5a.75.75 0 0 0 0 1.5Zm2-1.5V5.8c0-.3.25-.55.55-.55h9.4c.3 0 .55.25.55.55v12.95h-3v-3.2a1.3 1.3 0 0 0-1.3-1.3h-1.9a1.3 1.3 0 0 0-1.3 1.3v3.2h-3Zm4.5 0v-3h1.5v3h-1.5Zm-2-10.5a.75.75 0 0 1 .75-.75h.5a.75.75 0 0 1 0 1.5H10a.75.75 0 0 1-.75-.75Zm3.5 0a.75.75 0 0 1 .75-.75h.5a.75.75 0 0 1 0 1.5h-.5a.75.75 0 0 1-.75-.75Zm-3.5 3.5A.75.75 0 0 1 10 11h.5a.75.75 0 0 1 0 1.5H10a.75.75 0 0 1-.75-.75Zm3.5 0a.75.75 0 0 1 .75-.75h.5a.75.75 0 0 1 0 1.5h-.5a.75.75 0 0 1-.75-.75Z"
+                        />
+                      </svg>
+                      <span>{exp.data.company}</span>
+                    </Link>
+                  ) : (
+                    <p class="text-foreground/85 group-hover/item:text-accent inline-flex items-center gap-1.5 text-sm leading-snug font-semibold transition-colors">
+                      <svg
+                        class="text-muted-foreground group-hover/item:text-accent size-3.5 shrink-0 transition-colors"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                      >
+                        <path
+                          fill="currentColor"
+                          d="M4.75 20.25h14.5a.75.75 0 0 0 0-1.5h-.5V5.8c0-1.13-.92-2.05-2.05-2.05H7.3c-1.13 0-2.05.92-2.05 2.05v12.95h-.5a.75.75 0 0 0 0 1.5Zm2-1.5V5.8c0-.3.25-.55.55-.55h9.4c.3 0 .55.25.55.55v12.95h-3v-3.2a1.3 1.3 0 0 0-1.3-1.3h-1.9a1.3 1.3 0 0 0-1.3 1.3v3.2h-3Zm4.5 0v-3h1.5v3h-1.5Zm-2-10.5a.75.75 0 0 1 .75-.75h.5a.75.75 0 0 1 0 1.5H10a.75.75 0 0 1-.75-.75Zm3.5 0a.75.75 0 0 1 .75-.75h.5a.75.75 0 0 1 0 1.5h-.5a.75.75 0 0 1-.75-.75Zm-3.5 3.5A.75.75 0 0 1 10 11h.5a.75.75 0 0 1 0 1.5H10a.75.75 0 0 1-.75-.75Zm3.5 0a.75.75 0 0 1 .75-.75h.5a.75.75 0 0 1 0 1.5h-.5a.75.75 0 0 1-.75-.75Z"
+                        />
+                      </svg>
+                      <span>{exp.data.company}</span>
+                    </p>
+                  ))}
+
+                <div class="text-muted-foreground flex flex-wrap items-center gap-x-2 gap-y-1 text-xs">
+                  {dateRange && <span class="tabular-nums">{dateRange}</span>}
+                  {dateRange && location && (
+                    <span class="text-border" aria-hidden="true">
+                      &middot;
+                    </span>
+                  )}
+                  {location && (
+                    <span class="inline-flex items-center gap-1">
+                      <svg
+                        class="size-3.5 shrink-0"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                      >
+                        <path
+                          fill="currentColor"
+                          d="M12 2.75c-3.04 0-5.5 2.42-5.5 5.4 0 3.77 3.4 7.47 5.03 9.15.26.27.68.27.94 0 1.63-1.68 5.03-5.38 5.03-9.15 0-2.98-2.46-5.4-5.5-5.4Zm0 7.55a2.15 2.15 0 1 1 0-4.3 2.15 2.15 0 0 1 0 4.3Z"
+                        />
+                      </svg>
+                      <span>{location}</span>
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {exp.data.description && (
+                <p class="border-border/70 text-foreground/75 group-hover/item:border-accent group-hover/item:text-foreground mt-3 border-l-2 pl-3 text-sm leading-relaxed transition-colors">
+                  {exp.data.description}
+                </p>
+              )}
+
+              {exp.data.tags && exp.data.tags.length > 0 && (
+                <div class="mt-3 flex flex-wrap gap-1.5">
+                  {exp.data.tags.map((tag: string) => (
+                    <Badge
+                      variant="muted"
+                      className="bg-muted/30 text-muted-foreground border-border/60 px-2 py-0 text-xs"
+                    >
+                      {tag}
+                    </Badge>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )
+    })
+  }
+</div>

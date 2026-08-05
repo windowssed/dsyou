@@ -1,0 +1,31 @@
+---
+import Breadcrumbs from '@/components/base/Breadcrumbs.astro'
+import PageHead from '@/components/posts/base/PageHead.astro'
+import Layout from '@/layouts/Layout.astro'
+import { getPhotosTimeline } from '@/lib/photos'
+import PhotoTimeline from '@/components/photos/PhotoTimeline.astro'
+
+const photos = await getPhotosTimeline()
+---
+
+<Layout class="max-w-3xl">
+  <PageHead slot="head" title="相册" />
+
+  <Breadcrumbs
+    items={[
+      { label: '相册', href: '/photos', icon: 'lucide:images' },
+    ]}
+  />
+
+  <section class="mt-8">
+    {
+      photos.length > 0 ? (
+        <PhotoTimeline photoData={photos} />
+      ) : (
+        <div class="text-muted-foreground mb-4">
+          <p class="text-sm">还没有照片哦</p>
+        </div>
+      )
+    }
+  </section>
+</Layout>
