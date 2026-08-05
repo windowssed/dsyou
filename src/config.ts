@@ -6,16 +6,16 @@ import type {
 } from '@/types'
 
 export const SITE: Site = {
-  title: "windowssed",
+  title: "shiyou",
   description:
-    "windowssed 的个人博客，记录生活、学习与思考。",
+    "shiyou 的个人博客，记录生活、学习与思考。",
   href: "https://www.dsyou.cn/",
-  author: "windowssed",
+  author: "shiyou",
   footer: {
     items: [
       { type: "text", value: "© " },
       { type: "text", value: new Date().getFullYear().toString() },
-      { type: "text", value: " windowssed" },
+      { type: "text", value: " shiyou" },
     ],
   },
   locale: "zh-CN",
