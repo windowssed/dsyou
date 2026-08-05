@@ -1,0 +1,54 @@
+---
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+}
+
+import { metaData } from "../config";
+import { SEO } from "astro-seo";
+
+import { getImagePath } from "astro-opengraph-images";
+
+const { title, description = metaData.description, image } = Astro.props;
+
+const { url, site } = Astro;
+const openGraphImageUrl = getImagePath({ url, site });
+
+// If the image is not provided, use the default image
+const openGraphImage = image
+  ? new URL(image, url.href).href
+  : openGraphImageUrl;
+---
+
+<SEO
+  title={title}
+  titleTemplate=`%s | ${metaData.title}`
+  titleDefault={metaData.title}
+  description={description}
+  charset="UTF-8"
+  openGraph={{
+    basic: {
+      title: title || metaData.title,
+      type: "website",
+      image: openGraphImageUrl,
+      url: url,
+    },
+    optional: {
+      description,
+      siteName: "windowssed",
+      locale: "zh_CN",
+    },
+  }}
+  twitter={{
+    card: "summary_large_image",
+    title: title || metaData.title,
+    description,
+    image: openGraphImage,
+    creator: "@windowssed",
+  }}
+  extend={{
+    // extending the default link tags
+    link: [{ rel: "icon", href: "/favicon.ico" }],
+  }}
+/>

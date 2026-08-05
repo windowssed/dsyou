@@ -1,0 +1,39 @@
+---
+import Base from "../../layouts/Base.astro";
+import { getCollection } from "astro:content";
+import FormattedDate from "../../components/FormattedDate.astro";
+
+const posts = (await getCollection("blog")).sort(
+  (a, b) => b.data.publishedAt.valueOf() - a.data.publishedAt.valueOf()
+);
+
+const title = "博客";
+const description = "windowssed 的博客文章";
+---
+
+<Base title={title} description={description}>
+  <section>
+    <h1 class="mb-8 text-2xl font-medium tracking-tight">我的文章</h1>
+    <div>
+      {
+        posts.map((post) => (
+          <a
+            class="flex flex-col space-y-1 mb-4 transition-opacity duration-200 hover:opacity-80"
+            href={`/blog/${post.slug}`}>
+            <div class="w-full flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-1 sm:space-y-0 sm:space-x-2">
+              <p class="text-black dark:text-white tracking-tight">
+                {post.data.title}
+              </p>
+              <p class="text-neutral-600 dark:text-neutral-400 tabular-nums text-sm">
+                <FormattedDate
+                  date={post.data.publishedAt}
+                  includeRelative={false}
+                />
+              </p>
+            </div>
+          </a>
+        ))
+      }
+    </div>
+  </section>
+</Base>

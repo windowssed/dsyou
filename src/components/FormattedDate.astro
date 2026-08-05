@@ -1,0 +1,52 @@
+---
+interface Props {
+  date: Date | string;
+  includeRelative?: boolean;
+}
+
+const { date, includeRelative = false } = Astro.props;
+
+const formatDate = (date: Date | string, includeRelative: boolean): string => {
+  let currentDate = new Date();
+  let targetDate = date instanceof Date ? date : new Date(date);
+
+  if (isNaN(targetDate.getTime())) {
+    console.error("Invalid date:", date);
+    return "Invalid Date";
+  }
+
+  let yearsAgo = currentDate.getFullYear() - targetDate.getFullYear();
+  let monthsAgo = currentDate.getMonth() - targetDate.getMonth();
+  let daysAgo = currentDate.getDate() - targetDate.getDate();
+
+  let formattedDate = "";
+
+  if (yearsAgo > 0) {
+    formattedDate = `${yearsAgo} 年前`;
+  } else if (monthsAgo > 0) {
+    formattedDate = `${monthsAgo} 个月前`;
+  } else if (daysAgo > 0) {
+    formattedDate = `${daysAgo} 天前`;
+  } else {
+    formattedDate = "今天";
+  }
+
+  let fullDate = targetDate.toLocaleString("zh-CN", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+
+  if (!includeRelative) {
+    return fullDate;
+  }
+
+  return `${fullDate} (${formattedDate})`;
+};
+
+const formattedDateString = formatDate(date, includeRelative);
+---
+
+<time datetime={new Date(date).toISOString()}>
+  {formattedDateString}
+</time>

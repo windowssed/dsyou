@@ -1,0 +1,31 @@
+---
+interface TableData {
+  headers: string[];
+  rows: string[][];
+}
+
+interface Props {
+  data: TableData;
+}
+
+const { data } = Astro.props;
+---
+
+<table>
+  <thead>
+    <tr class="text-left">
+      {data.headers.map((header) => <th>{header}</th>)}
+    </tr>
+  </thead>
+  <tbody>
+    {
+      data.rows.map((row) => (
+        <tr>
+          {row.map((cell) => (
+            <td>{cell}</td>
+          ))}
+        </tr>
+      ))
+    }
+  </tbody>
+</table>

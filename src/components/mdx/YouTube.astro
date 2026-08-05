@@ -1,0 +1,20 @@
+---
+import YT from "react-youtube";
+
+interface Props {
+  videoId: string;
+}
+
+const { videoId } = Astro.props;
+---
+
+<div class="relative w-full h-0 pb-[56.25%] my-6">
+  <YT
+    opts={{
+      height: "100%",
+      width: "100%",
+    }}
+    videoId={videoId}
+    class="absolute top-0 left-0 w-full h-full"
+  />
+</div>

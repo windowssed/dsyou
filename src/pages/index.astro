@@ -1,0 +1,45 @@
+---
+import Base from "../layouts/Base.astro";
+import { socialLinks } from "../config";
+import { Image } from "astro:assets";
+---
+
+<Base>
+  <section>
+    <a href={socialLinks.github} target="_blank">
+      <Image
+        src="/profile.png"
+        alt="Profile photo"
+        class="rounded-full bg-gray-100 block lg:mt-5 mt-0 lg:mb-5 mb-10 mx-auto sm:float-right sm:ml-5 sm:mb-5 grayscale hover:grayscale-0"
+        width={160}
+        height={160}
+      />
+    </a>
+
+    <h1 class="mb-8 text-2xl font-medium tracking-tight">
+      你好，我是 windowssed
+    </h1>
+
+    <div class="prose prose-neutral dark:prose-invert">
+      <p>
+        欢迎来到我的个人博客！这里记录我的生活、学习与思考。
+      </p>
+      <p>
+        我在这里分享技术学习笔记、生活中的小事，以及各种我感兴趣的内容。网站由
+        <a href="https://astro.build/" target="_blank">Astro</a>
+        构建，使用
+        <a href="https://github.com/vikas5914/Astrofolio" target="_blank">Astrofolio</a>
+        主题。
+      </p>
+      <p>
+        想看看我写的文章？去
+        <a href="/blog/">博客</a> 逛逛吧。想了解我做过的事情，可以看看
+        <a href="/projects/">项目</a> 页面。
+      </p>
+      <p>
+        如果你想联系我，欢迎访问我的
+        <a href={socialLinks.github} target="_blank">GitHub</a>。
+      </p>
+    </div>
+  </section>
+</Base>

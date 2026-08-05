@@ -1,0 +1,54 @@
+---
+import { Image } from "astro:assets";
+
+interface ImageGridProps {
+  images: {
+    src: string;
+    alt: string;
+    href?: string;
+  }[];
+  columns?: 2 | 3 | 4;
+}
+
+const { images, columns = 3 } = Astro.props as ImageGridProps;
+
+const gridClass = {
+  2: "grid-cols-2 sm:grid-cols-2",
+  3: "grid-cols-2 sm:grid-cols-3",
+  4: "grid-cols-2 sm:grid-cols-4",
+}[columns];
+---
+
+<section>
+  <div class={`grid ${gridClass} gap-4 my-8`}>
+    {
+      images.map((image) => (
+        <div class="relative aspect-square">
+          {image.href ? (
+            <a
+              target="_blank"
+              rel="noopener noreferrer"
+              href={image.href}
+              class="block w-full h-full">
+              <Image
+                alt={image.alt}
+                src={image.src}
+                width={500}
+                height={500}
+                class="rounded-lg object-cover w-full h-full"
+              />
+            </a>
+          ) : (
+            <Image
+              alt={image.alt}
+              src={image.src}
+              width={500}
+              height={500}
+              class="rounded-lg object-cover w-full h-full"
+            />
+          )}
+        </div>
+      ))
+    }
+  </div>
+</section>

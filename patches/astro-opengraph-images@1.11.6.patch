@@ -1,0 +1,13 @@
+diff --git a/dist/hook.js b/dist/hook.js
+index 06448c6fde0c11a8a4100c7d31c3a77808b49702..9626994c458f48880242f9d6212d5817b72fcd58 100644
+--- a/dist/hook.js
++++ b/dist/hook.js
+@@ -36,7 +36,7 @@ async function handlePage({ page, options, render, dir, logger }) {
+     let pngFile = htmlFile.replace(/\.html$/, ".png");
+     // remove leading dist/ from the path
+     await fs.writeFile(pngFile, resvg.render().asPng());
+-    pngFile = pngFile.replace(path.join(process.cwd(), "dist"), "").replace(/\\/g, "/");
++    pngFile = pngFile.replace(fileURLToPath(dir), "").replace(/\\/g, "/");
+     if (pngFile.startsWith("/"))
+         pngFile = pngFile.slice(1);
+     // convert the image path to a URL

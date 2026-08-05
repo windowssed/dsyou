@@ -1,0 +1,36 @@
+---
+import { getTweet } from "react-tweet/api";
+import { EmbeddedTweet, TweetNotFound, type TweetProps } from "react-tweet";
+import "./tweet.css";
+
+interface Props {
+  id: string;
+}
+
+const { id } = Astro.props;
+
+let tweet;
+let error;
+
+if (id) {
+  try {
+    tweet = await getTweet(id);
+  } catch (err) {
+    console.error(err);
+    error = err;
+  }
+}
+
+const TweetContent = () => {
+  if (!tweet) {
+    return <TweetNotFound error={error} />;
+  }
+  return <EmbeddedTweet tweet={tweet} />;
+};
+---
+
+<div class="tweet my-6">
+  <div class="flex justify-center">
+    <TweetContent />
+  </div>
+</div>

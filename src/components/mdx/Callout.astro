@@ -1,0 +1,15 @@
+---
+interface Props {
+  emoji: string;
+}
+
+const { emoji } = Astro.props;
+---
+
+<div
+  class="px-4 py-3 bg-[#F7F7F7] dark:bg-[#181818] rounded p-1 text-sm flex items-center text-neutral-900 dark:text-neutral-100 mb-8">
+  <div class="flex items-center w-4 mr-4">{emoji}</div>
+  <div class="w-full callout leading-relaxed">
+    <slot />
+  </div>
+</div>

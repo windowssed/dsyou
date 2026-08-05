@@ -1,0 +1,58 @@
+---
+import { metaData } from "../config";
+import { Icon } from "astro-icon/components";
+
+const navItems = {
+  "/blog": { name: "博客" },
+  "/projects": { name: "项目" },
+  "/photos": { name: "照片" },
+};
+---
+
+<nav class="lg:mb-16 mb-12 py-5">
+  <div class="flex flex-col md:flex-row md:items-center justify-between">
+    <div class="flex items-center">
+      <a href="/" class="text-3xl font-semibold">
+        {metaData.title}
+      </a>
+    </div>
+    <div class="flex flex-row gap-4 mt-6 md:mt-0 md:ml-auto items-center">
+      {
+        Object.entries(navItems).map(([path, { name }]) => (
+          <a
+            href={path}
+            class="transition-all hover:text-neutral-800 dark:hover:text-neutral-200 flex align-middle relative">
+            {name}
+          </a>
+        ))
+      }
+      <button
+        id="theme-toggle"
+        aria-label="Toggle theme"
+        class="flex items-center justify-center transition-opacity duration-300 hover:opacity-90">
+        <Icon
+          name="fa6-solid:circle-half-stroke"
+          class="h-[14px] w-[14px] text-[#1c1c1c] dark:text-[#D4D4D4]"
+        />
+      </button>
+    </div>
+  </div>
+</nav>
+
+<script is:inline>
+  function setTheme(theme) {
+    document.dispatchEvent(new CustomEvent("set-theme", { detail: theme }));
+  }
+
+  function toggleTheme() {
+    const currentTheme = document.documentElement.getAttribute("data-theme");
+    const newTheme = currentTheme === "dark" ? "light" : "dark";
+    setTheme(newTheme);
+  }
+
+  document.addEventListener("astro:page-load", () => {
+    document
+      .getElementById("theme-toggle")
+      .addEventListener("click", toggleTheme);
+  });
+</script>
