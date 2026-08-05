@@ -4,6 +4,9 @@ dist/
 .astro/
 .vercel/
 
+# blog content (synced from dsyou-content repo at build time)
+src/content/blog/
+
 # dependencies
 node_modules/
 
