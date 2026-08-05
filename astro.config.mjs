@@ -14,6 +14,11 @@ import opengraphImages, { presets } from "astro-opengraph-images";
 // https://astro.build/config
 export default defineConfig({
   site: "https://www.dsyou.cn",
+  image: {
+    service: {
+      entrypoint: "./src/image-service.mjs",
+    },
+  },
   vite: {
     plugins: [tailwindcss()],
   },
