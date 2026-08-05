@@ -45,11 +45,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "prettier": "prettier --write **/*.{ts,tsx,css,astro} --ignore-path .gitignore",
-    "import:obsidian": "node scripts/import-obsidian.mjs",
-    "import-and-commit:obsidian": "node scripts/import-and-commit.mjs",
-    "publish:devto": "node scripts/publish-devto.mjs",
-    "publish:medium": "node scripts/publish-medium.mjs"
+    "prettier": "prettier --write **/*.{ts,tsx,css,astro} --ignore-path .gitignore"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.9",
