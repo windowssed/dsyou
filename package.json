@@ -1,17 +1,17 @@
 {
   "name": "dsyou",
   "version": "1.0.0",
-  "description": "windowssed 的个人博客网站。",
+  "description": "shiyou 的个人博客，基于 Astro-Theme-Shyne。",
   "type": "module",
   "private": true,
   "repository": {
     "type": "git",
-    "url": "https://github.com/FuTseYi/Astro-Theme-Shyne.git"
+    "url": "https://github.com/windowssed/dsyou.git"
   },
   "bugs": {
-    "url": "https://github.com/FuTseYi/Astro-Theme-Shyne/issues"
+    "url": "https://github.com/windowssed/dsyou/issues"
   },
-  "homepage": "https://github.com/FuTseYi/Astro-Theme-Shyne#readme",
+  "homepage": "https://www.dsyou.cn",
   "keywords": [
     "astro",
     "astro-theme",
@@ -28,8 +28,8 @@
     "personal-website"
   ],
   "author": {
-    "name": "FuTseYi",
-    "url": "https://github.com/FuTseYi"
+    "name": "shiyou",
+    "url": "https://github.com/windowssed"
   },
   "license": "MIT",
   "pnpm": {

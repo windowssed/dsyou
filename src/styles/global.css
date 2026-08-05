@@ -1,6 +1,10 @@
 
 @import 'tailwindcss';
 
+/* blog 内容由 sync-content.mjs 在构建时生成到 src/content/blog（已被 .gitignore 排除），
+   需要显式声明 source，否则 Tailwind 不会扫描文章内的 class（如 aspect-video、my-6）。 */
+@source "../content/blog/**/*.md";
+
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
 @theme inline {

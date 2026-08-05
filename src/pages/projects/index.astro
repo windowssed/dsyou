@@ -22,18 +22,24 @@ const years = Object.keys(projectsByYear).sort((a, b) => {
 
   <section class="mt-8 flex min-h-[calc(100vh-18rem)] flex-col gap-y-8">
     {
-      years.map((year) => (
-        <section class="flex flex-col gap-y-4">
-          <div class="font-medium">{year}</div>
-          <ul class="flex flex-col gap-4">
-            {projectsByYear[year].map((project) => (
-              <li>
-                <ProjectCard entry={project} />
-              </li>
-            ))}
-          </ul>
-        </section>
-      ))
+      years.length === 0 ? (
+        <div class="text-muted-foreground m-auto text-center">
+          暂无项目，敬请期待。
+        </div>
+      ) : (
+        years.map((year) => (
+          <section class="flex flex-col gap-y-4">
+            <div class="font-medium">{year}</div>
+            <ul class="flex flex-col gap-4">
+              {projectsByYear[year].map((project) => (
+                <li>
+                  <ProjectCard entry={project} />
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))
+      )
     }
   </section>
 </Layout>
