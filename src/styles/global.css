@@ -20,7 +20,7 @@
 
   /* custom fonts */
   --font-caveat: Caveat;
-  --font-bon-vivant: 'Bon Vivant';
+  --font-signatie: 'Signatie';
   --font-playfair-display: 'Playfair Display';
   --font-pp-editorial-new: 'PP Editorial New';
   --font-mudstone-sans: 'Mudstone Sans';
@@ -67,9 +67,9 @@
 }
 
 @font-face {
-  font-family: 'Bon Vivant';
-  src: url('/fonts/BonVivant.ttf') format('truetype');
-  font-weight: 100 900;
+  font-family: 'Signatie';
+  src: url('/fonts/Signatie.woff2') format('woff2');
+  font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
