@@ -1,4 +1,4 @@
-﻿---
+---
 // Components
 import Breadcrumbs from '@/components/base/Breadcrumbs.astro'
 import PageHead from '@/components/posts/base/PageHead.astro'
@@ -8,8 +8,8 @@ import Layout from '@/layouts/Layout.astro'
 ---
 
 <Layout class="max-w-3xl">
-  <PageHead slot="head" title="鍏充簬" />
-  <Breadcrumbs items={[{ label: '鍏充簬', icon: 'lucide:user-star' }]} />
+  <PageHead slot="head" title="关于" />
+  <Breadcrumbs items={[{ label: '关于', icon: 'lucide:user-star' }]} />
   <div class="about-page flex flex-col gap-y-8">
     <!-- Header section -->
     <section
@@ -27,12 +27,12 @@ import Layout from '@/layouts/Layout.astro'
           <p
             class="font-caveat absolute bottom-2 left-1/2 -translate-x-1/2 text-base whitespace-nowrap text-gray-800"
           >
-            灏辨槸鎴?
+            就是我
           </p>
         </div>
       </div>
-      <h1 class="font-great-vibes pt-10 text-8xl font-bold">
-        鍏充簬
+      <h1 class="font-bon-vivant pt-10 text-8xl font-bold">
+        关于
         <span class="text-accent font-caveat -mt-10 block text-7xl font-black"
           >shiyou</span
         >
@@ -45,20 +45,20 @@ import Layout from '@/layouts/Layout.astro'
         <p
           class="prose prose-sm text-muted-foreground max-w-none text-center font-serif md:text-left"
         >
-          浣犲ソ锛屾垜鏄?<strong>shiyou</strong>銆傝繖閲屾槸鎴戠殑涓汉鍗氬锛?
-          鐢ㄦ潵璁板綍鎴戠殑鐢熸椿銆佸涔犵粡鍘嗗拰涓€浜涢浂纰庣殑鎯虫硶銆?
+          你好，我是 <strong>shiyou</strong>。这里是我的个人博客，
+          用来记录我的生活、学习经历和一些零碎的想法。
         </p>
         <p
           class="prose prose-sm text-muted-foreground mt-4 max-w-none text-center font-serif md:text-left"
         >
-          鎴戜細涓嶅畾鏈熸洿鏂帮紝鍒嗕韩鎴戞劅鍏磋叮鐨勪笢瑗匡細
-          鎶€鏈瑪璁般€佺敓娲婚殢绗斻€佽涔﹁褰辨劅鍙楋紝绛夌瓑銆?
+          我会不定期更新，分享我感兴趣的东西：
+          技术笔记、生活随笔、读书观影感受，等等。
         </p>
         <p
           class="prose prose-sm text-muted-foreground mt-4 max-w-none text-center font-serif md:text-left"
         >
-          濡傛灉浣犲鎴戠殑鏂囩珷鏈変换浣曟兂娉曪紝鎴栬€呮兂鍜屾垜浜ゆ祦锛?
-          娆㈣繋閫氳繃
+          如果你对我的文章有任何想法，或者想和我交流，
+          欢迎通过
           <a
             href="https://github.com/windowssed"
             target="_blank"
@@ -66,48 +66,48 @@ import Layout from '@/layouts/Layout.astro'
             class="hover:text-accent underline underline-offset-4 transition-colors"
             >GitHub</a
           >
-          鑱旂郴鎴戙€?
+          联系我。
         </p>
       </div>
     </section>
 
     <!-- Website Overview Section -->
     <section>
-      <h2 class="text-accent font-great-vibes mb-4 text-6xl font-semibold">
-        <span class="relative -top-1 inline-block">缃戠珯</span>
-        <span class="text-foreground font-sans text-4xl">绠€浠?/span>
+      <h2 class="text-accent font-bon-vivant mb-4 text-6xl font-semibold">
+        <span class="relative -top-1 inline-block">网站</span>
+        <span class="text-foreground font-sans text-4xl">简介</span>
       </h2>
 
       <p
         class="text-muted-foreground max-w-3xl text-center font-serif leading-relaxed md:text-left"
       >
-        杩欎釜缃戠珯閲囩敤鍐呭涓庝唬鐮佸垎绂荤殑鏋舵瀯锛屽悇灞傝亴璐ｆ竻鏅般€?
+        这个网站采用内容与代码分离的架构，各层职责清晰。
       </p>
       <ul
         class="text-muted-foreground mt-4 flex flex-col space-y-2 text-left font-serif"
       >
         <li class="flex items-start gap-2">
-          <span class="text-accent shrink-0">鈻?/span>
+          <span class="text-accent shrink-0">▹</span>
           <span class="inline-block">
-            <strong class="text-foreground">鍩熷悕锛?/strong>dsyou.cn
+            <strong class="text-foreground">域名：</strong>dsyou.cn
           </span>
         </li>
         <li class="flex items-start gap-2">
-          <span class="text-accent shrink-0">鈻?/span>
+          <span class="text-accent shrink-0">▹</span>
           <span class="inline-block">
-            <strong class="text-foreground">DNS锛?/strong>Cloudflare
+            <strong class="text-foreground">DNS：</strong>Cloudflare
           </span>
         </li>
         <li class="flex items-start gap-2">
-          <span class="text-accent shrink-0">鈻?/span>
+          <span class="text-accent shrink-0">▹</span>
           <span class="inline-block">
-            <strong class="text-foreground">鎵樼涓庨儴缃诧細</strong>Vercel
+            <strong class="text-foreground">托管与部署：</strong>Vercel
           </span>
         </li>
         <li class="flex items-start gap-2">
-          <span class="text-accent shrink-0">鈻?/span>
+          <span class="text-accent shrink-0">▹</span>
           <span class="inline-block">
-            <strong class="text-foreground">妗嗘灦涓庝富棰橈細</strong>Astro +
+            <strong class="text-foreground">框架与主题：</strong>Astro +
             <a
               href="https://github.com/FuTseYi/Astro-Theme-Shyne"
               target="_blank"
@@ -118,9 +118,9 @@ import Layout from '@/layouts/Layout.astro'
           </span>
         </li>
         <li class="flex items-start gap-2">
-          <span class="text-accent shrink-0">鈻?/span>
+          <span class="text-accent shrink-0">▹</span>
           <span class="inline-block">
-            <strong class="text-foreground">鏂囩珷绠＄悊锛?/strong>鐙珛鍐呭浠撳簱锛屽彂甯冨悗鑷姩涓婄嚎
+            <strong class="text-foreground">文章管理：</strong>独立内容仓库，发布后自动上线
           </span>
         </li>
       </ul>
