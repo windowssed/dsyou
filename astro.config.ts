@@ -18,6 +18,7 @@ import remarkGithubAdmonitionsToDirectives from 'remark-github-admonitions-to-di
 import rehypeComponents from 'rehype-components'
 import { parseDirectiveNode } from './src/plugins/remark-directive-rehype.js'
 import { AdmonitionComponent } from './src/plugins/rehype-component-admonition.mjs'
+import { rehypeChart } from './src/plugins/rehype-chart.mjs'
 
 import { pluginCollapsibleSections } from '@expressive-code/plugin-collapsible-sections'
 import { pluginLineNumbers } from '@expressive-code/plugin-line-numbers'
@@ -70,6 +71,7 @@ export default defineConfig({
         parseDirectiveNode,
       ],
       rehypePlugins: [
+        rehypeChart,
         [
           rehypeExternalLinks,
           {

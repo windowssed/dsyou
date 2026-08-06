@@ -463,6 +463,28 @@ const formattedDate = post.data.date ? formatDate(post.data.date) : ''
     document.addEventListener('astro:before-swap', cleanupBeforeSwap)
     initReadingProgress()
   </script>
+
+  <script>
+    import { renderAllCharts } from '@/lib/charts'
+
+    let cleanupCharts: (() => void) | null = null
+
+    const initCharts = () => {
+      cleanupCharts?.()
+      cleanupCharts = null
+      cleanupCharts = renderAllCharts()
+    }
+
+    const cleanupChartsBeforeSwap = () => {
+      cleanupCharts?.()
+      cleanupCharts = null
+    }
+
+    document.addEventListener('astro:page-load', initCharts)
+    document.addEventListener('astro:after-swap', initCharts)
+    document.addEventListener('astro:before-swap', cleanupChartsBeforeSwap)
+    initCharts()
+  </script>
 </Layout>
 
 <script>

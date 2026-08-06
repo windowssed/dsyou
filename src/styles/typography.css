@@ -244,6 +244,19 @@
     --ec-frm-tooltipSuccessBg: var(--accent);
     --ec-frm-tooltipSuccessFg: var(--accent-foreground);
   }
+
+  /* 文章内的 ECharts 图表容器（由 rehype-chart 插件生成） */
+  .chart-block {
+    @apply my-6 w-full;
+  }
+
+  .chart-block .chart-canvas {
+    @apply h-[420px] w-full rounded-xl border border-border bg-background/60;
+  }
+
+  .dark .chart-block .chart-canvas {
+    @apply bg-muted/40;
+  }
 }
 
 @utility small {
