@@ -47,6 +47,10 @@ export const HEADER_LINKS: NavLink[] = [
     href: "/photos",
   },
   {
+    label: "关于",
+    href: "/about",
+  },
+  {
     label: "",
     href: "/search",
     icon: "lucide:search",
