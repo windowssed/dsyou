@@ -101,9 +101,6 @@
     "prettier-plugin-astro-organize-imports": "^0.4.12",
     "prettier-plugin-tailwindcss": "^0.7.4"
   },
-  "overrides": {
-    "vite": "7.3.3"
-  },
   "prettier": {
     "semi": false,
     "singleQuote": true,

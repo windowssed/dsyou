@@ -50,6 +50,6 @@ export function getSiteUrl(context: APIContext): URL {
     return new URL(context.url.origin)
   }
 
-  // for production, using the {site} from astro.config.ts (and fallback to the 'cloudflare worker' domain)
-  return new URL(context.site || 'https://portfolio.theinfinull.workers.dev')
+  // for production, using the {site} from astro.config.ts
+  return new URL(context.site || context.url.origin)
 }

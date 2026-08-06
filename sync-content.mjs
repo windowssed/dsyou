@@ -39,12 +39,22 @@ if (fs.existsSync(postsSrc)) {
     const parsed = matter(raw);
     const data = parsed.data;
 
+    const formatPublishedDate = (value) => {
+      if (!value) return undefined;
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) {
+        console.warn(
+          `[sync-content] 文章 "${file}" 的 publishedAt 格式无效: "${value}"，已忽略日期。`
+        );
+        return undefined;
+      }
+      return date.toISOString().slice(0, 10);
+    };
+
     const newData = {
       title: data.title ?? "未命名文章",
       description: data.summary ?? data.description ?? "",
-      date: data.publishedAt
-        ? new Date(data.publishedAt).toISOString().slice(0, 10)
-        : undefined,
+      date: formatPublishedDate(data.publishedAt),
       tags:
         typeof data.tags === "string"
           ? data.tags

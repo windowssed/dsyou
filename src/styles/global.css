@@ -226,10 +226,6 @@
     font-family: 'Playfair Display', serif;
   }
   
-  .font-pp-editorial {
-    font-family: var(--font-pp-editorial-new), serif;
-  }
-  
   .font-caveat {
     font-family: var(--font-caveat), cursive;
   }
