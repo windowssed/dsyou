@@ -8,7 +8,7 @@ import type {
 export const SITE: Site = {
   title: "shiyou",
   description:
-    "shiyou 的个人博客，记录生活、学习与思考。",
+    "shiyou 的投资笔记：市场千变万化，我只想搞清楚明天买什么。",
   href: "https://www.dsyou.cn/",
   author: "shiyou",
   footer: {
