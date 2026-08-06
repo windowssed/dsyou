@@ -73,62 +73,37 @@ import Layout from '@/layouts/Layout.astro'
         这个博客主要写这几个方面的内容：
       </p>
 
-      <div class="mt-6 flex flex-col gap-y-6">
-        <div>
-          <h3
-            class="text-accent flex items-baseline gap-2 text-lg font-semibold"
-          >
-            <span class="shrink-0">市场碎碎念</span>
-          </h3>
-          <p
-            class="text-muted-foreground mt-1 leading-relaxed"
-          >
-            大盘今天又在演什么、行业突然为什么火了、看到一条新闻后的即时想法。
-          </p>
-        </div>
-
-        <div>
-          <h3
-            class="text-accent flex items-baseline gap-2 text-lg font-semibold"
-          >
-            <span class="shrink-0">认真研究一下</span>
-          </h3>
-          <p
-            class="text-muted-foreground mt-1 leading-relaxed"
-          >
-            个股、行业、财报、估值——在这里稍微戴上眼镜，假装自己很专业。
-          </p>
-        </div>
-
-        <div>
-          <h3
-            class="text-accent flex items-baseline gap-2 text-lg font-semibold"
-          >
-            <span class="shrink-0">我的小算盘</span>
-          </h3>
-          <p
-            class="text-muted-foreground mt-1 leading-relaxed"
-          >
-            投资策略、仓位、买卖逻辑，以及"这次我到底在赌什么"。
-          </p>
-        </div>
-
-        <div>
-          <h3
-            class="text-accent flex items-baseline gap-2 text-lg font-semibold"
-          >
-            <span class="shrink-0">翻车日记</span>
-          </h3>
-          <p
-            class="text-muted-foreground mt-1 leading-relaxed"
-          >
-            复盘那些看走眼、买早了、卖飞了的时刻。毕竟，亏损也是一种昂贵的知识付费。
-          </p>
-        </div>
-      </div>
+      <ul
+        class="text-muted-foreground mt-5 flex flex-col space-y-3 text-left font-serif"
+      >
+        <li class="flex items-start gap-2">
+          <span class="text-accent shrink-0">▹</span>
+          <span class="inline-block">
+            <strong class="text-foreground">市场碎碎念：</strong>大盘今天又在演什么、行业突然为什么火了、看到一条新闻后的即时想法。
+          </span>
+        </li>
+        <li class="flex items-start gap-2">
+          <span class="text-accent shrink-0">▹</span>
+          <span class="inline-block">
+            <strong class="text-foreground">认真研究一下：</strong>个股、行业、财报、估值——在这里稍微戴上眼镜，假装自己很专业。
+          </span>
+        </li>
+        <li class="flex items-start gap-2">
+          <span class="text-accent shrink-0">▹</span>
+          <span class="inline-block">
+            <strong class="text-foreground">我的小算盘：</strong>投资策略、仓位、买卖逻辑，以及"这次我到底在赌什么"。
+          </span>
+        </li>
+        <li class="flex items-start gap-2">
+          <span class="text-accent shrink-0">▹</span>
+          <span class="inline-block">
+            <strong class="text-foreground">翻车日记：</strong>复盘那些看走眼、买早了、卖飞了的时刻。毕竟，亏损也是一种昂贵的知识付费。
+          </span>
+        </li>
+      </ul>
 
       <p
-        class="text-muted-foreground mt-6 max-w-3xl font-serif leading-relaxed"
+        class="text-muted-foreground mt-5 max-w-3xl font-serif leading-relaxed"
       >
         总而言之：一边围观市场，一边认真算账，偶尔翻车，但始终努力把学费赚回来。
       </p>
