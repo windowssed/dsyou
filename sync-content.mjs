@@ -7,6 +7,8 @@ import matter from "gray-matter";
 const CONTENT_REPO = "https://github.com/windowssed/dsyou-content.git";
 const SRC_DIR = path.join(os.tmpdir(), "dsyou-content-src");
 const BLOG_DIR = path.join(process.cwd(), "src", "content", "blog");
+// RSS 等场景需要可公开访问的原图，复制到 public 下由站点原样托管
+const PUBLIC_IMAGES_DIR = path.join(process.cwd(), "public", "blog-images");
 
 console.log("[sync-content] 正在从 dsyou-content 仓库同步并转换文章...");
 
@@ -26,6 +28,13 @@ if (fs.existsSync(path.join(postsSrc, "images"))) {
   fs.cpSync(path.join(postsSrc, "images"), path.join(BLOG_DIR, "images"), {
     recursive: true,
   });
+  fs.rmSync(PUBLIC_IMAGES_DIR, { recursive: true, force: true });
+  fs.cpSync(path.join(postsSrc, "images"), PUBLIC_IMAGES_DIR, {
+    recursive: true,
+  });
+} else {
+  // 内容仓库里没有图片时，清掉上次残留的公开图片，避免引用失效的旧图
+  fs.rmSync(PUBLIC_IMAGES_DIR, { recursive: true, force: true });
 }
 
 let count = 0;
