@@ -7,6 +7,24 @@ import sanitizeHtml from 'sanitize-html'
 
 const parser = new MarkdownIt()
 
+// 站点页面用 remark-github-admonitions 把 `> [!TIP]` 渲染成提示框，
+// 但 RSS 走独立的 markdown-it 渲染，提示框会退化成 `[!TIP]` 纯文本。
+// 这里做轻量降级：保留 blockquote，把 `[!类型]` 标记替换成可读的中文标签。
+const ADMONITION_LABELS: Record<string, string> = {
+  NOTE: '注意',
+  TIP: '提示',
+  IMPORTANT: '重要',
+  WARNING: '警告',
+  CAUTION: '小心',
+}
+
+function convertAdmonitions(html: string): string {
+  return html.replace(
+    /\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]\s*\n?/g,
+    (_, type: string) => `<strong>[${ADMONITION_LABELS[type] ?? type}]</strong> `,
+  )
+}
+
 // 文章正文里的本地图片是相对路径（如 ./images/demo.jpg），
 // 它们在网站构建时被优化为 /_astro/*.avif，但 RSS 消费端无法解析相对路径。
 // 同步脚本会把原图复制到 public/blog-images/，这里统一重写为指向该目录的绝对 URL。
@@ -59,9 +77,8 @@ export async function GET(_context: APIContext) {
       items: posts.map((post) => {
         const content = typeof post.body === 'string' ? post.body : String(post.body || '')
         const cleanedContent = stripInvalidXmlChars(content)
-        const renderedContent = rewriteLocalImageSrcs(
-          parser.render(cleanedContent),
-          siteUrl
+        const renderedContent = convertAdmonitions(
+          rewriteLocalImageSrcs(parser.render(cleanedContent), siteUrl),
         )
 
         return {
