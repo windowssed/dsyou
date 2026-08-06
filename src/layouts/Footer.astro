@@ -28,8 +28,7 @@ import { Icon } from 'astro-icon/components'
       <SocialIcons links={SOCIAL_LINKS} />
     </div>
 
-    <p class="text-muted-foreground mt-2">
-      &copy; {new Date().getFullYear()} ・
+    <p class="text-muted-foreground mt-2 font-sans font-medium">
       {
         SITE.footer.items.map((item) =>
           item.type === 'text' ? (

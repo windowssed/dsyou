@@ -22,8 +22,8 @@
   --font-caveat: Caveat;
   --font-signatie: 'Signatie';
   --font-playfair-display: 'Playfair Display';
-  --font-pp-editorial-new: 'PP Editorial New';
-  --font-mudstone-sans: 'Mudstone Sans';
+  --font-pp-editorial-new: 'Bodoni Moda';
+  --font-mudstone-sans: 'Space Grotesk';
   --font-bricolage-grotesque: 'Bricolage Grotesque';
 
   /* colors */
@@ -75,57 +75,25 @@
 }
 
 @font-face {
-  font-family: 'PP Editorial New';
-  src: url('/fonts/PPEditorial/PPEditorialNew-Ultralight.otf') format('opentype');
-  font-weight: 200;
+  font-family: 'Bodoni Moda';
+  src: url('/fonts/BodoniModaVF.woff2') format('woff2-variations');
+  font-weight: 400 900;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'PP Editorial New';
-  src: url('/fonts/PPEditorial/PPEditorialNew-UltralightItalic.otf') format('opentype');
-  font-weight: 200;
+  font-family: 'Bodoni Moda';
+  src: url('/fonts/BodoniModaVF-Italic.woff2') format('woff2-variations');
+  font-weight: 400 900;
   font-style: italic;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'PP Editorial New';
-  src: url('/fonts/PPEditorial/PPEditorialNew-Regular.otf') format('opentype');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'PP Editorial New';
-  src: url('/fonts/PPEditorial/PPEditorialNew-Italic.otf') format('opentype');
-  font-weight: 400;
-  font-style: italic;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'PP Editorial New';
-  src: url('/fonts/PPEditorial/PPEditorialNew-Ultrabold.otf') format('opentype');
-  font-weight: 800;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'PP Editorial New';
-  src: url('/fonts/PPEditorial/PPEditorialNew-UltraboldItalic.otf') format('opentype');
-  font-weight: 800;
-  font-style: italic;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Mudstone Sans';
-  src: url('/fonts/MudstoneSans.otf') format('opentype');
-  font-weight: 900;
+  font-family: 'Space Grotesk';
+  src: url('/fonts/SpaceGroteskVF.woff2') format('woff2-variations');
+  font-weight: 300 700;
   font-style: normal;
   font-display: swap;
 }
@@ -259,7 +227,7 @@
   }
   
   .font-pp-editorial {
-    font-family: var(--font-pp-editorial), serif;
+    font-family: var(--font-pp-editorial-new), serif;
   }
   
   .font-caveat {
