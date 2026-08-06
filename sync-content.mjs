@@ -41,6 +41,10 @@ if (fs.existsSync(postsSrc)) {
 
     const formatPublishedDate = (value) => {
       if (!value) return undefined;
+      // 已是 YYYY-MM-DD：直接返回，避免 Date 解析时的时区偏移
+      const isoDateMatch = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(value).trim());
+      if (isoDateMatch) return `${isoDateMatch[1]}-${isoDateMatch[2]}-${isoDateMatch[3]}`;
+
       const date = new Date(value);
       if (Number.isNaN(date.getTime())) {
         console.warn(
@@ -48,7 +52,11 @@ if (fs.existsSync(postsSrc)) {
         );
         return undefined;
       }
-      return date.toISOString().slice(0, 10);
+      // 用本地时区取年月日，避免 toISOString 的 UTC 偏移导致日期往前/后跳一天
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, "0");
+      const d = String(date.getDate()).padStart(2, "0");
+      return `${y}-${m}-${d}`;
     };
 
     const newData = {
