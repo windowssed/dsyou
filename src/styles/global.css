@@ -20,6 +20,7 @@
 
   /* custom fonts */
   --font-caveat: Caveat;
+  --font-pingfang-mengmeng: 'PingFang MengMeng';
   --font-signatie: 'Signatie';
   --font-playfair-display: 'Playfair Display';
   --font-pp-editorial-new: 'Bodoni Moda';
@@ -61,6 +62,14 @@
 @font-face {
   font-family: 'Caveat';
   src: url('/fonts/Caveat.woff2') format('woff2');
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'PingFang MengMeng';
+  src: url('/fonts/PingFangMengMeng.woff2') format('woff2');
   font-weight: 400 700;
   font-style: normal;
   font-display: swap;
@@ -228,6 +237,10 @@
   
   .font-caveat {
     font-family: var(--font-caveat), cursive;
+  }
+
+  .font-pingfang-mengmeng {
+    font-family: var(--font-pingfang-mengmeng), 'PingFang SC', 'Microsoft YaHei', cursive;
   }
 
   .font-bricolage-grotesque {
