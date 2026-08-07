@@ -129,12 +129,38 @@ const PaginationComponent: React.FC<PaginationProps> = ({
   totalPages,
   baseUrl,
 }) => {
-  const pages = Array.from({ length: totalPages }, (_, i) => i + 1)
-
   const getPageUrl = (page: number) => {
     if (page === 1) return baseUrl
     return `${baseUrl}${page}`
   }
+
+  // 页码窗口：页数不多时全部显示；否则始终显示首页/末页/当前页±1，间隙用省略号折叠
+  const getPageItems = (): (number | 'ellipsis')[] => {
+    if (totalPages <= 7) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1)
+    }
+
+    const siblingCount = 1
+    const visiblePages = new Set<number>([1, totalPages])
+    for (
+      let page = Math.max(2, currentPage - siblingCount);
+      page <= Math.min(totalPages - 1, currentPage + siblingCount);
+      page++
+    ) {
+      visiblePages.add(page)
+    }
+
+    const items: (number | 'ellipsis')[] = []
+    let prev = 0
+    for (const page of [...visiblePages].sort((a, b) => a - b)) {
+      if (page - prev > 1) items.push('ellipsis')
+      items.push(page)
+      prev = page
+    }
+    return items
+  }
+
+  const pageItems = getPageItems()
 
   return (
     <Pagination>
@@ -146,21 +172,21 @@ const PaginationComponent: React.FC<PaginationProps> = ({
           />
         </PaginationItem>
 
-        {pages.map((page) => (
-          <PaginationItem key={page}>
-            <PaginationLink
-              href={getPageUrl(page)}
-              isActive={page === currentPage}
-            >
-              {page}
-            </PaginationLink>
-          </PaginationItem>
-        ))}
-
-        {totalPages > 5 && (
-          <PaginationItem>
-            <PaginationEllipsis />
-          </PaginationItem>
+        {pageItems.map((item, index) =>
+          item === 'ellipsis' ? (
+            <PaginationItem key={`ellipsis-${index}`}>
+              <PaginationEllipsis />
+            </PaginationItem>
+          ) : (
+            <PaginationItem key={item}>
+              <PaginationLink
+                href={getPageUrl(item)}
+                isActive={item === currentPage}
+              >
+                {item}
+              </PaginationLink>
+            </PaginationItem>
+          ),
         )}
 
         <PaginationItem>

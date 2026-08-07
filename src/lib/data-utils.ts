@@ -189,7 +189,6 @@ export async function getAdjacentPosts(currentId: string): Promise<{
 
   if (isSubpost(currentId)) {
     const parentId = getParentId(currentId)
-    const allPosts = await getAllPosts()
     const parent = allPosts.find((post) => post.id === parentId) || null
 
     const posts = await getCollection('blog')
