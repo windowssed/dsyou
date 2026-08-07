@@ -1,7 +1,7 @@
 # shiyou — shiyou 的投资笔记
 
 > 个人投资笔记网站，代码与内容分离管理。
-> 线上地址：**https://www.dongshiyou.com**
+> 线上地址：**https://dongshiyou.com**
 
 本文件是**完整的使用与维护文档**，面向所有读者（包括 AI 代理）。任何人读到本文档，都应能独立完成本仓库的日常维护。
 
@@ -339,7 +339,7 @@ startDate: 2026-01-01
 endDate: 2026-06-01
 sourceCodeLink: "https://github.com/xxx"
 siteLink: "https://xxx.com"
-relatedBlogsLink: "https://www.dongshiyou.com/blog/xxx"
+relatedBlogsLink: "https://dongshiyou.com/blog/xxx"
 tags: "标签1, 标签2"
 featured: true
 order: 1

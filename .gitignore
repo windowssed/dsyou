@@ -15,3 +15,5 @@ src/content/blog/
 
 # public copies of blog images (synced at build time for RSS etc.)
 public/blog-images/
+.vercel
+.env*
