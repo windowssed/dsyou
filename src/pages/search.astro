@@ -8,6 +8,23 @@ import { Icon } from 'astro-icon/components'
 const allPosts = await getAllPosts()
 const allProjects = await getAllProjects()
 
+// 从文章 HTML 正文中提取纯文本，供客户端全文搜索。
+// 会移除 script/style 与标签，解码常见 HTML 实体，并压缩空白。
+function extractPostText(html: string): string {
+  return (html || '')
+    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
 // Serialize posts data for client-side search
 const postsData = allPosts.map((post) => ({
   id: post.id,
@@ -17,6 +34,7 @@ const postsData = allPosts.map((post) => ({
   date: post.data.date?.toISOString() || '',
   slug: `/${post.collection}/${post.id}`,
   type: 'post',
+  body: extractPostText(post.body || ''),
 }))
 
 // Serialize projects data for client-side search
@@ -141,6 +159,31 @@ const allSearchData = [...postsData, ...projectsData]
         }
       }
 
+      // 生成结果描述：优先命中 description，否则取正文命中的上下文摘录
+      function buildSnippet(item, query) {
+        const description = (item.description || '').toString()
+        if (description.toLowerCase().includes(query)) {
+          return { text: description, isBody: false }
+        }
+
+        const body = (item.body || '').toString()
+        const bodyLower = body.toLowerCase()
+        const idx = bodyLower.indexOf(query)
+        if (idx === -1) {
+          return { text: description, isBody: false }
+        }
+
+        const radius = 36
+        const start = Math.max(0, idx - radius)
+        const end = Math.min(body.length, idx + query.length + radius)
+        const prefix = start > 0 ? '…' : ''
+        const suffix = end < body.length ? '…' : ''
+        return {
+          text: prefix + body.slice(start, end) + suffix,
+          isBody: true,
+        }
+      }
+
       function searchItems(query) {
         const normalizedQuery = (query || '').toLowerCase().trim()
 
@@ -153,20 +196,43 @@ const allSearchData = [...postsData, ...projectsData]
 
         searchInitial.classList.add('hidden')
 
-        const matchingItems = allSearchData.filter((item) => {
-          const title = (item.title || '').toString().toLowerCase()
-          const description = (item.description || '')
-            .toString()
-            .toLowerCase()
-          const tags = Array.isArray(item.tags) ? item.tags : []
+        const matchingItems = allSearchData
+          .map((item) => {
+            const title = (item.title || '').toString().toLowerCase()
+            const description = (item.description || '')
+              .toString()
+              .toLowerCase()
+            const body = (item.body || '').toString().toLowerCase()
+            const tags = Array.isArray(item.tags) ? item.tags : []
 
-          const titleMatch = title.includes(normalizedQuery)
-          const descriptionMatch = description.includes(normalizedQuery)
-          const tagsMatch = tags.some((tag) =>
-            (tag || '').toString().toLowerCase().includes(normalizedQuery),
-          )
-          return titleMatch || descriptionMatch || tagsMatch
-        })
+            const titleMatch = title.includes(normalizedQuery)
+            const descriptionMatch = description.includes(normalizedQuery)
+            const bodyMatch = body.includes(normalizedQuery)
+            const tagsMatch = tags.some((tag) =>
+              (tag || '').toString().toLowerCase().includes(normalizedQuery),
+            )
+
+            if (
+              !titleMatch &&
+              !descriptionMatch &&
+              !bodyMatch &&
+              !tagsMatch
+            ) {
+              return null
+            }
+
+            // 加权打分：标题 > 描述 > 标签 > 正文，命中越多排越前
+            const score =
+              (titleMatch ? 4 : 0) +
+              (descriptionMatch ? 3 : 0) +
+              (tagsMatch ? 2 : 0) +
+              (bodyMatch ? 1 : 0)
+
+            return { item, score }
+          })
+          .filter(Boolean)
+          .sort((a, b) => b.score - a.score)
+          .map((entry) => entry.item)
 
         if (matchingItems.length === 0) {
           searchResults.innerHTML = ''
@@ -178,7 +244,9 @@ const allSearchData = [...postsData, ...projectsData]
 
         searchResults.innerHTML = matchingItems
           .map(
-            (item) => `
+            (item) => {
+              const snippet = buildSnippet(item, normalizedQuery)
+              return `
           <div class="hover:bg-muted/50 rounded-xl border p-4 transition-colors duration-300 ease-in-out">
             <a href="${item.slug}" class="flex flex-col gap-4 sm:flex-row sm:items-stretch">
               <div class="grow flex flex-col">
@@ -186,7 +254,8 @@ const allSearchData = [...postsData, ...projectsData]
                   <h3 class="text-lg font-medium">${highlightMatch(item.title, normalizedQuery)}</h3>
                   <span class="text-xs text-muted-foreground">${getTypeLabel(item.type)}</span>
                 </div>
-                <p class="text-muted-foreground mb-2 text-sm">${highlightMatch(item.description || '', normalizedQuery)}</p>
+                <p class="text-muted-foreground mb-2 text-sm">${highlightMatch(snippet.text, normalizedQuery)}</p>
+                ${snippet.isBody ? '<span class="text-muted-foreground/60 mb-2 text-xs">匹配于正文</span>' : ''}
                 ${
                   item.tags.length > 0
                     ? `<div class="flex flex-wrap gap-2">
@@ -204,7 +273,8 @@ const allSearchData = [...postsData, ...projectsData]
               </div>
             </a>
           </div>
-        `,
+        `
+            }
           )
           .join('')
       }
