@@ -1,17 +1,17 @@
 {
-  "name": "dsyou",
+  "name": "shiyou",
   "version": "1.0.0",
   "description": "shiyou 的个人博客，基于 Astro-Theme-Shyne。",
   "type": "module",
   "private": true,
   "repository": {
     "type": "git",
-    "url": "https://github.com/windowssed/dsyou.git"
+    "url": "https://github.com/windowssed/shiyou.git"
   },
   "bugs": {
-    "url": "https://github.com/windowssed/dsyou/issues"
+    "url": "https://github.com/windowssed/shiyou/issues"
   },
-  "homepage": "https://www.dsyou.cn",
+  "homepage": "https://www.dongshiyou.com",
   "keywords": [
     "astro",
     "astro-theme",

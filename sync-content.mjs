@@ -4,14 +4,14 @@ import path from "node:path";
 import os from "node:os";
 import matter from "gray-matter";
 
-const CONTENT_REPO = "https://github.com/windowssed/dsyou-content.git";
+const CONTENT_REPO = "https://github.com/windowssed/shiyou-content.git";
 // 进程唯一的临时目录，避免并发构建互相竞争 git 工作区；构建结束后统一清理
-const SRC_DIR = path.join(os.tmpdir(), `dsyou-content-src-${process.pid}`);
+const SRC_DIR = path.join(os.tmpdir(), `shiyou-content-src-${process.pid}`);
 const BLOG_DIR = path.join(process.cwd(), "src", "content", "blog");
 // RSS 等场景需要可公开访问的原图，复制到 public 下由站点原样托管
 const PUBLIC_IMAGES_DIR = path.join(process.cwd(), "public", "blog-images");
 
-console.log("[sync-content] 正在从 dsyou-content 仓库同步并转换文章...");
+console.log("[sync-content] 正在从 shiyou-content 仓库同步并转换文章...");
 
 fs.rmSync(BLOG_DIR, { recursive: true, force: true });
 fs.mkdirSync(BLOG_DIR, { recursive: true });

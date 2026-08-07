@@ -9,7 +9,7 @@ export const SITE: Site = {
   title: "shiyou",
   description:
     "shiyou 的投资笔记：市场千变万化，我只想搞清楚明天买什么。",
-  href: "https://www.dsyou.cn/",
+  href: "https://www.dongshiyou.com/",
   author: "shiyou",
   footer: {
     items: [

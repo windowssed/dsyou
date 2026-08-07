@@ -1,12 +1,12 @@
-# dsyou — shiyou 的投资笔记
+# shiyou — shiyou 的投资笔记
 
 > 个人投资笔记网站，代码与内容分离管理。
-> 线上地址：**https://www.dsyou.cn**
+> 线上地址：**https://www.dongshiyou.com**
 
 本文件是**完整的使用与维护文档**，面向所有读者（包括 AI 代理）。任何人读到本文档，都应能独立完成本仓库的日常维护。
 
 > [!IMPORTANT]
-> **强制声明：未来任何功能上线、配置变更、目录结构变动，必须同步更新本 README.md（以及 dsyou-content/README.md 中涉及的部分）。这是维护约定，不是可选项。**
+> **强制声明：未来任何功能上线、配置变更、目录结构变动，必须同步更新本 README.md（以及 shiyou-content/README.md 中涉及的部分）。这是维护约定，不是可选项。**
 
 ---
 
@@ -53,12 +53,12 @@ shiyou 的个人投资笔记网站，内容围绕：
 
 | 仓库 | 作用 | 何时修改 |
 |---|---|---|
-| **dsyou**（本仓库） | 网站主题、代码、页面、站点配置、相册/项目/经历内容 | 改样式/功能/相册/项目/经历/头像/站点信息时 |
-| **dsyou-content** | 博客文章（`.mdx` 文件） | 写文章时 |
+| **shiyou**（本仓库） | 网站主题、代码、页面、站点配置、相册/项目/经历内容 | 改样式/功能/相册/项目/经历/头像/站点信息时 |
+| **shiyou-content** | 博客文章（`.mdx` 文件） | 写文章时 |
 
 > 重要：
-> - **写文章永远只改 dsyou-content 仓库**，不要在本仓库改文章。
-> - 网站构建时 `sync-content.mjs` 会自动从 dsyou-content 拉取最新文章并转换为本站内容格式。
+> - **写文章永远只改 shiyou-content 仓库**，不要在本仓库改文章。
+> - 网站构建时 `sync-content.mjs` 会自动从 shiyou-content 拉取最新文章并转换为本站内容格式。
 
 ## 技术栈
 
@@ -74,11 +74,11 @@ shiyou 的个人投资笔记网站，内容围绕：
 ## 目录结构
 
 ```
-dsyou/
+shiyou/
 ├── astro.config.ts            # Astro 配置（markdown 插件链、站点地址、图片服务）
 ├── components.json            # shadcn/ui 配置
 ├── package.json               # 依赖与脚本
-├── sync-content.mjs           # 构建前从 dsyou-content 同步并转换文章（prebuild）
+├── sync-content.mjs           # 构建前从 shiyou-content 同步并转换文章（prebuild）
 ├── public/
 │   ├── avatar.avif            # 站点头像
 │   ├── favicon/               # favicon 全套
@@ -151,7 +151,7 @@ npm run preview   # 本地预览构建产物
 npm run prettier  # 格式化代码
 ```
 
-> 本地构建需要能访问 GitHub（`sync-content.mjs` 会克隆/拉取 dsyou-content 仓库）。
+> 本地构建需要能访问 GitHub（`sync-content.mjs` 会克隆/拉取 shiyou-content 仓库）。
 
 ### 脚本一览
 
@@ -167,7 +167,7 @@ npm run prettier  # 格式化代码
 
 ### 操作流程
 
-1. 在 **dsyou-content** 仓库的 `blog/` 文件夹新建 `.mdx` 文件。
+1. 在 **shiyou-content** 仓库的 `blog/` 文件夹新建 `.mdx` 文件。
 2. 按下方 frontmatter 格式填写元信息。
 3. 推送：`git add . && git commit -m "添加新文章" && git push`。
 4. 网站自动重新构建，几分钟后文章上线。
@@ -237,7 +237,7 @@ tags: "标签1, 标签2"
 把 `.mdx` 文件放进 `blog/` 的子文件夹，即可生成「父文章 + 子文章」结构：
 
 ```
-dsyou-content/
+shiyou-content/
 └── blog/
     ├── 投资系列.mdx          ← 父文章（slug: 投资系列）
     └── 投资系列/
@@ -275,7 +275,7 @@ dsyou-content/
 ### 本地图片放哪里
 
 ```
-dsyou-content/
+shiyou-content/
 ├── blog/
 │   ├── 我的文章.mdx
 │   └── images/
@@ -339,7 +339,7 @@ startDate: 2026-01-01
 endDate: 2026-06-01
 sourceCodeLink: "https://github.com/xxx"
 siteLink: "https://xxx.com"
-relatedBlogsLink: "https://www.dsyou.cn/blog/xxx"
+relatedBlogsLink: "https://www.dongshiyou.com/blog/xxx"
 tags: "标签1, 标签2"
 featured: true
 order: 1
@@ -442,19 +442,19 @@ tags: "标签1, 标签2"
 ## 部署机制
 
 ```
-你在 dsyou-content 推送文章
+你在 shiyou-content 推送文章
         ↓
 GitHub Action 触发 Vercel Deploy Hook
         ↓
-Vercel 构建 dsyou 仓库
-  ├─ 1. prebuild：sync-content.mjs 拉取 dsyou-content 最新文章
+Vercel 构建 shiyou 仓库
+  ├─ 1. prebuild：sync-content.mjs 拉取 shiyou-content 最新文章
   ├─ 2. astro build：生成静态页面（文章图片自动压缩为 avif）
   └─ 3. 部署上线
 ```
 
-- **内容仓库**（dsyou-content）的推送通过 GitHub Action + `VERCEL_DEPLOY_HOOK` secret 触发重建。
+- **内容仓库**（shiyou-content）的推送通过 GitHub Action + `VERCEL_DEPLOY_HOOK` secret 触发重建。
 - **网站仓库**（本仓库）的推送由 Vercel 的 GitHub 集成自动触发。
-- 域名 dsyou.cn 由 Cloudflare DNS 托管，指向 Vercel。
+- 域名 dongshiyou.com 由 Cloudflare DNS 托管，指向 Vercel。
 
 ## 搜索与 RSS
 
@@ -465,7 +465,7 @@ Vercel 构建 dsyou 仓库
 ## 常见问题
 
 **Q: 改了文章但网站没更新？**
-检查 dsyou-content 的 GitHub Action 运行状态（Actions 标签页），确认 `VERCEL_DEPLOY_HOOK` secret 是否有效。
+检查 shiyou-content 的 GitHub Action 运行状态（Actions 标签页），确认 `VERCEL_DEPLOY_HOOK` secret 是否有效。
 
 **Q: 添加相册/项目后报错？**
 检查 frontmatter 字段名是否拼写正确（如 `startDate` 不是 `date`），图片路径 `./assets/文件名` 是否与文件名一致。
@@ -488,6 +488,6 @@ Vercel 构建 dsyou 仓库
 > 以下为强制维护约定，任何 AI 或人类开发者都必须遵守：
 >
 > 1. **新增功能、修改配置、调整目录结构、变更内容 schema 后，必须同步更新本 README.md。**
-> 2. **影响 dsyou-content 仓库的约定（如文章 frontmatter 变化）必须同步更新 dsyou-content/README.md。**
+> 2. **影响 shiyou-content 仓库的约定（如文章 frontmatter 变化）必须同步更新 shiyou-content/README.md。**
 > 3. **本文件被视为"项目事实来源"（source of truth）。如果发现文档与代码不一致，优先更新文档或说明原因。**
-> 4. **写文章请在 dsyou-content 仓库进行，不要在本仓库直接编辑 `src/content/blog/`（该目录是构建产物，会被覆盖）。**
+> 4. **写文章请在 shiyou-content 仓库进行，不要在本仓库直接编辑 `src/content/blog/`（该目录是构建产物，会被覆盖）。**
