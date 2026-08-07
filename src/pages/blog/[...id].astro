@@ -1,5 +1,6 @@
 ---
 import Breadcrumbs from '@/components/base/Breadcrumbs.astro'
+import IndexChart from '@/components/base/IndexChart.astro'
 import ArticleImageZoom from '@/components/posts/base/ArticleImageZoom.astro'
 import PostHead from '@/components/posts/base/PostHead.astro'
 import PostCopyright from '@/components/posts/base/PostCopyright.astro'
@@ -176,6 +177,7 @@ const formattedDate = post.data.date ? formatDate(post.data.date) : ''
       <article class="prose custom-md col-start-2 max-w-none">
         <Content />
       </article>
+      <IndexChart />
       <ArticleImageZoom />
 
       {

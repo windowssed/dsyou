@@ -1,0 +1,336 @@
+---
+// 文章内嵌图表（ECharts 按需引入）
+// 用法：
+//   折线/蜡烛图：<div class="chart" data-chart="kline|line" data-config='{"title":"...","categories":[...],"data":[...],"current":123}' style="height:380px"></div>
+//   多指标切换：<div class="chart" data-chart="switcher" data-config='{"series":[{"key":"pe","label":"PE","categories":[...],"data":[...],"current":1,"referenceLines":[...]},...]}' style="height:360px"></div>
+// 本组件在文章页布局中引入一次，脚本自动扫描并初始化所有 data-chart 元素。
+---
+
+<script>
+  import * as echarts from 'echarts/core'
+  import { CandlestickChart, LineChart } from 'echarts/charts'
+  import {
+    GridComponent,
+    TooltipComponent,
+    DataZoomComponent,
+    MarkLineComponent,
+    MarkPointComponent,
+  } from 'echarts/components'
+  import { CanvasRenderer } from 'echarts/renderers'
+
+  echarts.use([
+    CandlestickChart,
+    LineChart,
+    GridComponent,
+    TooltipComponent,
+    DataZoomComponent,
+    MarkLineComponent,
+    MarkPointComponent,
+    CanvasRenderer,
+  ])
+
+  function themeColors() {
+    const dark = document.documentElement.getAttribute('data-theme') === 'dark'
+    const cs = getComputedStyle(document.documentElement)
+    const get = (v) => cs.getPropertyValue(v).trim()
+    return {
+      dark,
+      accent: get('--accent') || '#9FB6CD',
+      fg: get('--foreground') || (dark ? '#d1d5db' : '#374151'),
+      muted: get('--muted-foreground') || (dark ? '#9ca3af' : '#6b7280'),
+      border: get('--border') || (dark ? '#374151' : '#e5e7eb'),
+      up: '#e1534f',
+      down: '#47b262',
+    }
+  }
+
+  function baseOption(c, categories, colors) {
+    return {
+      animation: false,
+      backgroundColor: 'transparent',
+      textStyle: { color: colors.fg, fontFamily: 'inherit' },
+      title: c.title
+        ? {
+            text: c.title,
+            left: 'center',
+            top: 0,
+            textStyle: {
+              fontSize: 13,
+              fontWeight: 500,
+              color: colors.fg,
+            },
+          }
+        : undefined,
+      tooltip: {
+        trigger: 'axis',
+        confine: true,
+        backgroundColor: colors.dark ? 'rgba(30,30,30,0.92)' : 'rgba(255,255,255,0.95)',
+        borderColor: colors.border,
+        textStyle: { color: colors.fg, fontSize: 12 },
+        axisPointer: { type: 'cross', label: { backgroundColor: colors.accent } },
+      },
+      grid: { left: 10, right: 10, top: 36, bottom: 48, containLabel: true },
+      xAxis: {
+        type: 'category',
+        data: categories,
+        boundaryGap: true,
+        axisLine: { lineStyle: { color: colors.border } },
+        axisLabel: { color: colors.muted, fontSize: 11 },
+        axisTick: { show: false },
+      },
+      yAxis: {
+        scale: true,
+        splitLine: { lineStyle: { color: colors.border, opacity: 0.5 } },
+        axisLabel: { color: colors.muted, fontSize: 11 },
+      },
+      dataZoom: [
+        { type: 'inside', start: c.zoomStart ?? 0, end: c.zoomEnd ?? 100 },
+        {
+          type: 'slider',
+          height: 16,
+          bottom: 6,
+          borderColor: colors.border,
+          backgroundColor: colors.dark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)',
+          fillerColor: colors.dark ? 'rgba(159,182,205,0.15)' : 'rgba(159,182,205,0.2)',
+          handleStyle: { color: colors.accent },
+          textStyle: { color: colors.muted, fontSize: 10 },
+          dataBackground: {
+            lineStyle: { color: colors.muted, opacity: 0.4 },
+            areaStyle: { color: colors.muted, opacity: 0.08 },
+          },
+        },
+      ],
+    }
+  }
+
+  function klineOption(c, categories, colors) {
+    return {
+      ...baseOption(c, categories, colors),
+      xAxis: {
+        type: 'category',
+        data: categories,
+        axisLine: { lineStyle: { color: colors.border } },
+        axisLabel: { color: colors.muted, fontSize: 11 },
+        axisTick: { show: false },
+      },
+      series: [
+        {
+          type: 'candlestick',
+          data: c.data, // [open, close, low, high]
+          itemStyle: {
+            color: colors.up,
+            color0: colors.down,
+            borderColor: colors.up,
+            borderColor0: colors.down,
+          },
+          markLine: c.current
+            ? {
+                silent: true,
+                symbol: 'none',
+                label: {
+                  show: true,
+                  position: 'end',
+                  formatter: (p) => p.value.toFixed(2),
+                  color: colors.muted,
+                  fontSize: 10,
+                },
+                lineStyle: { color: colors.accent, type: 'dashed', opacity: 0.7 },
+                data: [{ yAxis: c.current }],
+              }
+            : undefined,
+        },
+      ],
+    }
+  }
+
+  function lineOption(c, categories, colors) {
+    const series = [
+      {
+        type: 'line',
+        data: c.data,
+        symbol: 'none',
+        lineStyle: { color: colors.accent, width: 2 },
+        areaStyle: {
+          color: {
+            type: 'linear',
+            x: 0, y: 0, x2: 0, y2: 1,
+            colorStops: [
+              { offset: 0, color: colors.dark ? 'rgba(159,182,205,0.25)' : 'rgba(159,182,205,0.2)' },
+              { offset: 1, color: 'rgba(159,182,205,0)' },
+            ],
+          },
+        },
+        markLine: (c.referenceLines || []).map((l) => ({
+          silent: true,
+          symbol: 'none',
+          label: {
+            show: true,
+            position: 'end',
+            formatter: l.label,
+            color: colors.muted,
+            fontSize: 10,
+          },
+          lineStyle: { color: colors.border, type: 'dashed', opacity: 0.8 },
+          data: [{ yAxis: l.value }],
+        })),
+        markPoint: c.current
+          ? {
+              symbol: 'pin',
+              symbolSize: 34,
+              label: {
+                show: true,
+                formatter: (p) => p.value.toFixed(2),
+                color: colors.dark ? '#1f2937' : '#fff',
+                fontSize: 10,
+              },
+              itemStyle: { color: colors.accent },
+              data: [{ coord: [categories.length - 1, c.current], value: c.current }],
+            }
+          : undefined,
+      },
+    ]
+    return { ...baseOption(c, categories, colors), series }
+  }
+
+  function buildOption(el, config, colors) {
+    const type = el.getAttribute('data-chart')
+    const categories = config.categories || []
+    if (type === 'kline') return klineOption(config, categories, colors)
+    return lineOption(config, categories, colors)
+  }
+
+  // 多指标切换器：按钮行 + 共享图表实例
+  function initSwitcher(el, config) {
+    const colors = themeColors()
+
+    // 按钮行
+    const tabs = document.createElement('div')
+    tabs.className = 'chart-tabs'
+    el.appendChild(tabs)
+
+    // 图表容器
+    const chartDiv = document.createElement('div')
+    chartDiv.className = 'chart-body'
+    chartDiv.style.height = el.style.height || '360px'
+    el.appendChild(chartDiv)
+
+    const chart = echarts.init(chartDiv)
+    let current = 0
+    const render = (i) => {
+      current = i
+      const s = config.series[i]
+      chart.setOption(lineOption(s, s.categories || [], themeColors()), true)
+      tabs.querySelectorAll('button').forEach((b, bi) => {
+        b.classList.toggle('active', bi === i)
+      })
+    }
+
+    config.series.forEach((s, i) => {
+      const b = document.createElement('button')
+      b.type = 'button'
+      b.textContent = s.label
+      b.addEventListener('click', () => render(i))
+      tabs.appendChild(b)
+    })
+
+    render(0)
+
+    // 主题切换重绘
+    const observer = new MutationObserver((mutations) => {
+      if (
+        mutations.some(
+          (m) => m.type === 'attributes' && m.attributeName === 'data-theme'
+        )
+      ) {
+        render(current)
+      }
+    })
+    observer.observe(document.documentElement, { attributes: true })
+
+    window.addEventListener('resize', () => chart.resize())
+  }
+
+  function initCharts() {
+    const els = document.querySelectorAll('[data-chart]')
+    if (!els.length) return
+    els.forEach((el) => {
+      const raw = el.getAttribute('data-config')
+      if (!raw) return
+      let config
+      try {
+        config = JSON.parse(raw)
+      } catch {
+        return
+      }
+      const type = el.getAttribute('data-chart')
+      if (type === 'switcher') {
+        initSwitcher(el, config)
+        return
+      }
+      const chart = echarts.init(el)
+      const render = () => chart.setOption(buildOption(el, config, themeColors()))
+      render()
+
+      const observer = new MutationObserver((mutations) => {
+        if (
+          mutations.some(
+            (m) => m.type === 'attributes' && m.attributeName === 'data-theme'
+          )
+        ) {
+          render()
+        }
+      })
+      observer.observe(document.documentElement, { attributes: true })
+
+      window.addEventListener('resize', () => chart.resize())
+    })
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCharts)
+  } else {
+    initCharts()
+  }
+</script>
+
+<style>
+  :global(.chart) {
+    width: 100%;
+    margin: 2rem 0 3rem;
+  }
+
+  :global(.chart-tabs) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  :global(.chart-tabs button) {
+    padding: 0.25rem 1rem;
+    font-size: 0.8125rem;
+    font-family: inherit;
+    line-height: 1.5;
+    border-radius: 9999px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted-foreground);
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+  }
+
+  :global(.chart-tabs button:hover) {
+    border-color: var(--accent);
+    color: var(--foreground);
+  }
+
+  :global(.chart-tabs button.active) {
+    background: var(--accent);
+    border-color: transparent;
+    color: var(--accent-foreground);
+  }
+
+  :global(.chart-body) {
+    width: 100%;
+  }
+</style>

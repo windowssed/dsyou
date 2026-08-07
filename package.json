@@ -68,6 +68,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "dotenv": "^17.4.2",
+    "echarts": "^6.1.0",
     "gray-matter": "^4.0.3",
     "hastscript": "^9.0.1",
     "lucide-react": "^0.562.0",
