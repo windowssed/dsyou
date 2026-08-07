@@ -2,52 +2,7 @@
 import Breadcrumbs from '@/components/base/Breadcrumbs.astro'
 import PageHead from '@/components/posts/base/PageHead.astro'
 import Layout from '@/layouts/Layout.astro'
-import { getAllPosts, getAllProjects } from '@/lib/data-utils'
 import { Icon } from 'astro-icon/components'
-
-const allPosts = await getAllPosts()
-const allProjects = await getAllProjects()
-
-// 从文章 HTML 正文中提取纯文本，供客户端全文搜索。
-// 会移除 script/style 与标签，解码常见 HTML 实体，并压缩空白。
-function extractPostText(html: string): string {
-  return (html || '')
-    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
-    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/&nbsp;/g, ' ')
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/\s+/g, ' ')
-    .trim()
-}
-
-// Serialize posts data for client-side search
-const postsData = allPosts.map((post) => ({
-  id: post.id,
-  title: post.data.title,
-  description: post.data.description,
-  tags: post.data.tags || [],
-  date: post.data.date?.toISOString() || '',
-  slug: `/${post.collection}/${post.id}`,
-  type: 'post',
-  body: extractPostText(post.body || ''),
-}))
-
-// Serialize projects data for client-side search
-const projectsData = allProjects.map((project) => ({
-  id: project.id,
-  title: project.data.name,
-  description: project.data.description,
-  tags: project.data.tags || [],
-  slug: `/projects/${project.id}`,
-  type: 'project',
-}))
-
-const allSearchData = [...postsData, ...projectsData]
 ---
 
 <Layout class="max-w-3xl">
@@ -61,8 +16,8 @@ const allSearchData = [...postsData, ...projectsData]
   <div class="flex flex-col gap-y-6">
     <div>
       <h1 class="mb-2 text-3xl font-semibold">搜索</h1>
-      <p class="text-muted-foreground text-sm">
-        可以搜索 {allPosts.length} 篇文章、{allProjects.length} 个项目和页面
+      <p id="search-stats" class="text-muted-foreground text-sm">
+        正在加载搜索索引...
       </p>
     </div>
 
@@ -86,16 +41,25 @@ const allSearchData = [...postsData, ...projectsData]
         没有找到结果，换个关键词试试。
       </p>
     </div>
-    <div id="search-initial" class="py-12 text-center">
+    <div id="search-loading" class="py-12 text-center">
+      <p class="text-muted-foreground">正在加载搜索索引...</p>
+    </div>
+    <div id="search-initial" class="hidden py-12 text-center">
       <p class="text-muted-foreground">输入关键词开始搜索...</p>
+    </div>
+    <div id="search-error" class="hidden py-12 text-center">
+      <p class="text-muted-foreground">搜索索引加载失败，请刷新页面重试。</p>
     </div>
   </div>
 </Layout>
 
-<script is:inline define:vars={{ allSearchData }}>
+<script is:inline>
   ;(function () {
     let isInitialized = false
     let currentInputHandler = null
+    // 搜索索引从 /search-index.json 异步加载，避免把全部文章正文内联进首屏
+    let allSearchData = null
+    let searchIndexPromise = null
 
     function initSearch() {
       // Prevent multiple initializations
@@ -107,8 +71,17 @@ const allSearchData = [...postsData, ...projectsData]
       const searchResults = document.getElementById('search-results')
       const searchEmpty = document.getElementById('search-empty')
       const searchInitial = document.getElementById('search-initial')
+      const searchLoading = document.getElementById('search-loading')
+      const searchError = document.getElementById('search-error')
 
-      if (!searchInput || !searchResults || !searchEmpty || !searchInitial) {
+      if (
+        !searchInput ||
+        !searchResults ||
+        !searchEmpty ||
+        !searchInitial ||
+        !searchLoading ||
+        !searchError
+      ) {
         // Can happen during prefetch / partial renders: just skip initialization
         return
       }
@@ -191,6 +164,11 @@ const allSearchData = [...postsData, ...projectsData]
           searchResults.innerHTML = ''
           searchEmpty.classList.add('hidden')
           searchInitial.classList.remove('hidden')
+          return
+        }
+
+        // 索引未就绪时先不搜索，加载完成后由 onIndexReady 自动补搜
+        if (!allSearchData) {
           return
         }
 
@@ -279,6 +257,41 @@ const allSearchData = [...postsData, ...projectsData]
           .join('')
       }
 
+      // 索引加载完成后的收尾：更新统计、恢复占位状态、补搜用户已输入的查询
+      function onIndexReady() {
+        searchLoading.classList.add('hidden')
+
+        const statsEl = document.getElementById('search-stats')
+        if (statsEl && allSearchData) {
+          const postCount = allSearchData.filter(
+            (item) => item.type === 'post',
+          ).length
+          const projectCount = allSearchData.filter(
+            (item) => item.type === 'project',
+          ).length
+          statsEl.textContent = `可以搜索 ${postCount} 篇文章、${projectCount} 个项目和页面`
+        }
+
+        if (searchInput.value.trim()) {
+          searchItems(searchInput.value)
+        } else {
+          searchInitial.classList.remove('hidden')
+        }
+      }
+
+      async function loadSearchIndex() {
+        try {
+          const res = await fetch('/search-index.json')
+          if (!res.ok) throw new Error(`HTTP ${res.status}`)
+          allSearchData = await res.json()
+          onIndexReady()
+        } catch (err) {
+          console.error('加载搜索索引失败：', err)
+          searchLoading.classList.add('hidden')
+          searchError.classList.remove('hidden')
+        }
+      }
+
       // Create new input handler
       currentInputHandler = (e) => {
         const query = e.target.value
@@ -302,6 +315,11 @@ const allSearchData = [...postsData, ...projectsData]
       if (queryParam) {
         searchInput.value = queryParam
         searchItems(queryParam)
+      }
+
+      // 启动索引加载（只加载一次）
+      if (!searchIndexPromise) {
+        searchIndexPromise = loadSearchIndex()
       }
 
       isInitialized = true
