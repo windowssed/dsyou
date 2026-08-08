@@ -3,42 +3,79 @@
 // 用法：
 //   折线/蜡烛图：<div class="chart" data-chart="kline|line" data-config='{"title":"...","categories":[...],"data":[...],"current":123}' style="height:380px"></div>
 //   多指标切换：<div class="chart" data-chart="switcher" data-config='{"series":[{"key":"pe","label":"PE","categories":[...],"data":[...],"current":1,"referenceLines":[...]},...]}' style="height:360px"></div>
+//   圆饼/环形图：<div class="chart" data-chart="pie" data-config='{"title":"...","data":[{"name":"...","value":123},...]}' style="height:380px"></div>
+//   圆饼切换：<div class="chart" data-chart="pie" data-config='{"series":[{"key":"a","label":"A","unit":"亿","title":"...","data":[...]},...]}' style="height:380px"></div>
 // 本组件在文章页布局中引入一次，脚本自动扫描并初始化所有 data-chart 元素。
 ---
 
 <script>
   import * as echarts from 'echarts/core'
-  import { CandlestickChart, LineChart } from 'echarts/charts'
+  import { CandlestickChart, LineChart, PieChart } from 'echarts/charts'
   import {
     GridComponent,
     TooltipComponent,
     DataZoomComponent,
     MarkLineComponent,
     MarkPointComponent,
+    LegendComponent,
   } from 'echarts/components'
   import { CanvasRenderer } from 'echarts/renderers'
 
   echarts.use([
     CandlestickChart,
     LineChart,
+    PieChart,
     GridComponent,
     TooltipComponent,
     DataZoomComponent,
     MarkLineComponent,
     MarkPointComponent,
+    LegendComponent,
     CanvasRenderer,
   ])
+
+  // 圆饼扇区色板（与 DOM 图例色块共用，保证颜色一致）
+  const PIE_PALETTE = [
+    '#5470c6', '#91cc75', '#fac858', '#ee6666', '#73c0de',
+    '#3ba272', '#fc8452', '#9a60b4', '#ea7ccc', '#c4719c',
+  ]
+
+  // 圆饼图例：用 DOM 渲染（HTML 文字必定显示），替代 ECharts canvas 图例
+  function buildDomLegend(container, data) {
+    const legend = document.createElement('div')
+    legend.className = 'chart-legend'
+    ;(data || []).forEach((d, i) => {
+      const item = document.createElement('span')
+      item.className = 'chart-legend-item'
+      const swatch = document.createElement('span')
+      swatch.className = 'chart-legend-swatch'
+      swatch.style.background = PIE_PALETTE[i % PIE_PALETTE.length]
+      const label = document.createElement('span')
+      label.className = 'chart-legend-label'
+      label.textContent = d.name
+      item.appendChild(swatch)
+      item.appendChild(label)
+      legend.appendChild(item)
+    })
+    container.appendChild(legend)
+    return legend
+  }
 
   function themeColors() {
     const dark = document.documentElement.getAttribute('data-theme') === 'dark'
     const cs = getComputedStyle(document.documentElement)
     const get = (v) => cs.getPropertyValue(v).trim()
+    // 站点 CSS 变量用的是 oklch()/color-mix() 等现代色值，
+    // 部分浏览器的 canvas fillStyle 画不出这类颜色（图例/坐标文字会整块消失）。
+    // 这里把非 hex/rgb/hsl 的色值统一降级为安全回退色。
+    const safe = (v, fb) =>
+      !v || /^(oklch|oklab|lab|lch|hwb|color\(|color-mix\()/i.test(v) ? fb : v
     return {
       dark,
-      accent: get('--accent') || '#9FB6CD',
-      fg: get('--foreground') || (dark ? '#d1d5db' : '#374151'),
-      muted: get('--muted-foreground') || (dark ? '#9ca3af' : '#6b7280'),
-      border: get('--border') || (dark ? '#374151' : '#e5e7eb'),
+      accent: safe(get('--accent'), '#9FB6CD'),
+      fg: safe(get('--foreground'), dark ? '#d1d5db' : '#374151'),
+      muted: safe(get('--muted-foreground'), dark ? '#9ca3af' : '#6b7280'),
+      border: safe(get('--border'), dark ? '#374151' : '#e5e7eb'),
       up: '#e1534f',
       down: '#47b262',
     }
@@ -192,15 +229,70 @@
     return { ...baseOption(c, categories, colors), series }
   }
 
+  function pieOption(c, colors) {
+    return {
+      animation: false,
+      backgroundColor: 'transparent',
+      textStyle: { color: colors.fg, fontFamily: 'inherit' },
+      title: c.title
+        ? {
+            text: c.title,
+            left: 'center',
+            top: 0,
+            textStyle: {
+              fontSize: 13,
+              fontWeight: 500,
+              color: colors.fg,
+            },
+          }
+        : undefined,
+      tooltip: {
+        trigger: 'item',
+        confine: true,
+        backgroundColor: colors.dark ? 'rgba(30,30,30,0.92)' : 'rgba(255,255,255,0.95)',
+        borderColor: colors.border,
+        textStyle: { color: colors.fg, fontSize: 12 },
+        formatter: (p) => `${p.name}<br/>${p.value.toLocaleString()}${c.unit || ''}（${p.percent}%）`,
+      },
+      // 图例用 DOM 渲染（见 initSeriesSwitcher 的 buildDomLegend），
+      // 不依赖 canvas 文字绘制，避免部分浏览器图例文字不显示。
+      series: [
+        {
+          type: 'pie',
+          radius: ['42%', '68%'],
+          center: ['50%', '46%'],
+          avoidLabelOverlap: true,
+          minAngle: 2,
+          itemStyle: {
+            borderColor: colors.dark ? '#111827' : '#fff',
+            borderWidth: 1,
+          },
+          label: {
+            color: colors.fg,
+            fontSize: 11,
+            formatter: '{b} {d}%',
+          },
+          labelLine: { length: 10, length2: 8, lineStyle: { color: colors.border } },
+          // 显式给每个扇区上色，保证与下方 DOM 图例色块一致
+          data: (c.data || []).map((d, i) => ({
+            ...d,
+            itemStyle: { color: PIE_PALETTE[i % PIE_PALETTE.length] },
+          })),
+        },
+      ],
+    }
+  }
+
   function buildOption(el, config, colors) {
     const type = el.getAttribute('data-chart')
     const categories = config.categories || []
     if (type === 'kline') return klineOption(config, categories, colors)
+    if (type === 'pie') return pieOption(config, colors)
     return lineOption(config, categories, colors)
   }
 
-  // 多指标切换器：按钮行 + 共享图表实例
-  function initSwitcher(el, config) {
+  // 多指标切换器：按钮行 + 共享图表实例（折线/圆饼通用，optionFn 决定渲染方式）
+  function initSeriesSwitcher(el, config, optionFn) {
     const colors = themeColors()
 
     // 按钮行
@@ -214,15 +306,26 @@
     chartDiv.style.height = el.style.height || '360px'
     el.appendChild(chartDiv)
 
+    // 圆饼：canvas 高度让出底部给 DOM 图例
+    const isPie = optionFn === pieOption
+    if (isPie) {
+      chartDiv.style.height = '330px'
+    }
+
     const chart = echarts.init(chartDiv)
     let current = 0
+    let legendEl = null
     const render = (i) => {
       current = i
       const s = config.series[i]
-      chart.setOption(lineOption(s, s.categories || [], themeColors()), true)
+      chart.setOption(optionFn(s, s.categories || [], themeColors()), true)
       tabs.querySelectorAll('button').forEach((b, bi) => {
         b.classList.toggle('active', bi === i)
       })
+      if (isPie) {
+        if (legendEl) legendEl.remove()
+        legendEl = buildDomLegend(el, s.data)
+      }
     }
 
     config.series.forEach((s, i) => {
@@ -264,7 +367,11 @@
       }
       const type = el.getAttribute('data-chart')
       if (type === 'switcher') {
-        initSwitcher(el, config)
+        initSeriesSwitcher(el, config, lineOption)
+        return
+      }
+      if (type === 'pie' && config.series) {
+        initSeriesSwitcher(el, config, pieOption)
         return
       }
       const chart = echarts.init(el)
@@ -332,5 +439,29 @@
 
   :global(.chart-body) {
     width: 100%;
+  }
+
+  :global(.chart-legend) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem 1rem;
+    padding-top: 0.5rem;
+  }
+
+  :global(.chart-legend-item) {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.8125rem;
+    line-height: 1.4;
+    color: var(--muted-foreground);
+  }
+
+  :global(.chart-legend-swatch) {
+    width: 0.7rem;
+    height: 0.7rem;
+    border-radius: 2px;
+    display: inline-block;
+    flex-shrink: 0;
   }
 </style>
