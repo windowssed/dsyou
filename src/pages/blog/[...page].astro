@@ -3,6 +3,7 @@ import Breadcrumbs from '@/components/base/Breadcrumbs.astro'
 import Link from '@/components/base/Link.astro'
 import PageHead from '@/components/posts/base/PageHead.astro'
 import BlogCard from '@/components/posts/card/BlogCard.astro'
+import BreadcrumbListJsonLd from '@/components/seo/BreadcrumbListJsonLd.astro'
 import { badgeVariants } from '@/components/ui/badge'
 import PaginationComponent from '@/components/ui/pagination'
 import { SITE } from '@/config'
@@ -25,10 +26,19 @@ const { page } = Astro.props
 const postsByYear = groupPostsByYear(page.data)
 const years = Object.keys(postsByYear).sort((a, b) => parseInt(b) - parseInt(a))
 const sortedTags = await getSortedTags()
+
+// 第 1 页标题保持"博客"；第 2 页起带页码区分，避免与首页重复
+const pageTitle =
+  page.currentPage > 1 ? `博客 · 第 ${page.currentPage} 页` : '博客'
+const breadcrumbItems = [
+  { href: '/blog', label: '博客' },
+  ...(page.currentPage > 1 ? [{ label: `第 ${page.currentPage} 页` }] : []),
+]
 ---
 
 <Layout class="max-w-3xl">
-  <PageHead slot="head" title="博客" />
+  <PageHead slot="head" title={pageTitle} noindex={page.currentPage > 1} />
+  <BreadcrumbListJsonLd slot="head" items={breadcrumbItems} />
   <Breadcrumbs
     items={[
       { label: '博客', href: '/blog', icon: 'lucide:library-big' },

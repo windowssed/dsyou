@@ -33,7 +33,32 @@ export default defineConfig({
       entrypoint: './src/image-service.mjs',
     },
   },
-  integrations: [react(), sitemap(), icon()],
+  integrations: [
+    react(),
+    sitemap({
+      // 只收录值得被搜索的页面：剔除无独立内容的页面与分页/子文章
+      filter: (page) => {
+        const path = new URL(page).pathname
+
+        // 搜索页、404 页无独立内容
+        if (path.startsWith('/search') || path.startsWith('/404')) {
+          return false
+        }
+        // 标签页整体不收录（详情页已 noindex，总览页仅导航；与 robots.txt Disallow 一致）
+        if (path.startsWith('/tags')) {
+          return false
+        }
+        // 博客列表只留第一页 /blog/：排除分页页（/blog/2/）与子文章（/blog/a/b/）
+        if (path !== '/blog' && path !== '/blog/' && path.startsWith('/blog/')) {
+          const segments = path.replace(/^\/|\/$/g, '').split('/')
+          if (segments.length > 2) return false
+          if (segments.length === 2 && /^\d+$/.test(segments[1])) return false
+        }
+        return true
+      },
+    }),
+    icon(),
+  ],
 
   vite: {
     plugins: [tailwindcss()],

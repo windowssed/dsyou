@@ -1,4 +1,5 @@
 ---
+import ArticleJsonLd from '@/components/seo/ArticleJsonLd.astro'
 import { FAVICON, SITE } from '@/config'
 import { isSubpost } from '@/lib/data-utils'
 import type { CollectionEntry } from 'astro:content'
@@ -28,11 +29,17 @@ const author = SITE.author
 <meta property="og:description" content={description} />
 <meta property="og:image" content={image.toString()} />
 <meta property="og:image:alt" content={title} />
-<meta property="og:type" content="website" />
+<meta property="og:type" content="article" />
 <meta property="og:locale" content={SITE.locale} />
 <meta property="og:site_name" content={SITE.title} />
 <meta property="og:url" content={Astro.url} />
 <meta property="og:author" content={author} />
+{post.data.date && (
+  <meta property="article:published_time" content={post.data.date.toISOString()} />
+)}
+{post.data.date && (
+  <meta property="article:modified_time" content={post.data.date.toISOString()} />
+)}
 
 <meta name="twitter:title" content={title} />
 <meta name="twitter:description" content={description} />
@@ -47,3 +54,5 @@ const author = SITE.author
       return <meta property="article:tag" content={tag} />
     })
 }
+
+<ArticleJsonLd post={post} />

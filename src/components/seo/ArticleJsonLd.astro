@@ -1,0 +1,41 @@
+---
+import { SITE } from '@/config'
+import { toJsonLd } from '@/lib/jsonld'
+import type { CollectionEntry } from 'astro:content'
+
+interface Props {
+  post: CollectionEntry<'blog'>
+}
+
+const { post } = Astro.props
+
+const title = post.data.title || SITE.title
+const description = post.data.description || SITE.description
+const url = new URL(Astro.url.pathname, Astro.url.origin)
+
+const articleJsonLd: Record<string, unknown> = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: title,
+  description: description,
+  url: url.toString(),
+  mainEntityOfPage: {
+    '@type': 'WebPage',
+    '@id': url.toString(),
+  },
+  author: { '@type': 'Person', name: SITE.author },
+  publisher: { '@type': 'Person', name: SITE.author },
+  inLanguage: SITE.locale,
+}
+
+if (post.data.date) {
+  articleJsonLd.datePublished = post.data.date.toISOString()
+  articleJsonLd.dateModified = post.data.date.toISOString()
+}
+
+if (post.data.tags && post.data.tags.length > 0) {
+  articleJsonLd.keywords = post.data.tags.join(', ')
+}
+---
+
+<script type="application/ld+json" set:html={toJsonLd(articleJsonLd)} />

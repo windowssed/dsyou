@@ -1,0 +1,26 @@
+---
+import { toJsonLd } from '@/lib/jsonld'
+
+interface Props {
+  items: { label: string; href?: string }[]
+}
+
+const { items } = Astro.props
+const origin = Astro.url.origin
+
+// 站点可视化面包屑不含"首页"，结构化数据按最佳实践补上首页层级
+const fullItems = [{ label: '首页', href: '/' }, ...items]
+
+const breadcrumbJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: fullItems.map((item, index) => ({
+    '@type': 'ListItem',
+    position: index + 1,
+    name: item.label,
+    ...(item.href ? { item: new URL(item.href, origin).toString() } : {}),
+  })),
+}
+---
+
+<script type="application/ld+json" set:html={toJsonLd(breadcrumbJsonLd)} />

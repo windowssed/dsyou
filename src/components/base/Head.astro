@@ -1,6 +1,7 @@
 ---
 import { SITE } from '@/config'
 import { ClientRouter } from 'astro:transitions'
+import WebSiteJsonLd from '@/components/seo/WebSiteJsonLd.astro'
 import Favicons from './Favicons.astro'
 
 const consoleBadge = 'Astro Theme Shyne'
@@ -82,6 +83,8 @@ const consoleSignatureScript = `console.log(${JSON.stringify(
 
   <Favicons />
   <ClientRouter />
+
+  <WebSiteJsonLd />
 
   {
     import.meta.env.PROD && (

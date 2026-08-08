@@ -1,0 +1,17 @@
+---
+import { SITE } from '@/config'
+import { toJsonLd } from '@/lib/jsonld'
+
+const siteUrl = Astro.url.origin
+
+const webSiteJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: SITE.title,
+  url: siteUrl,
+  description: SITE.description,
+  inLanguage: SITE.locale,
+}
+---
+
+<script type="application/ld+json" set:html={toJsonLd(webSiteJsonLd)} />
